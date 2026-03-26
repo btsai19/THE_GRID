@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Realm Chess</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Raleway:wght@300;400;500;600&display=swap');
 :root {
   --bg:#13101E; --lsq:#2A2444; --dsq:#1A1630;
@@ -606,8 +607,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     .nm-input::placeholder { color: #3a3a3a; letter-spacing: 0.1em; }
     .nm-btn {
         width: 100%;
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 1rem; letter-spacing: 0.18em;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.7rem; font-weight: 500; letter-spacing: 0.22em;
         color: #161616; background: #e8e6e1;
         border: none; border-radius: 4px;
         padding: 13px 0; cursor: pointer;
@@ -2022,6 +2023,30 @@ setupLegend();
     });
     input.addEventListener('keydown', e => { if (e.key === 'Enter') saveName(); });
 })();
+
+
+// ── LIVE SESSION TRACKER ──
+const _SURL = 'https://kepbwovgwvsfycmvsztu.supabase.co';
+const _SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtlcGJ3b3Znd3ZzZnljbXZzenR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0OTkxNDMsImV4cCI6MjA5MDA3NTE0M30.cAS58qI-4N1Ddgrd4tqIxwjOj_u5l2QL5yNmXQVRr7c';
+const _SH   = { 'apikey': _SKEY, 'Authorization': 'Bearer ' + _SKEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+
+async function setActiveGame(name) {
+    try {
+        // Upsert active_game key
+        await fetch(`${_SURL}/rest/v1/meta?key=eq.active_game`, {
+            method: 'PATCH', headers: _SH,
+            body: JSON.stringify({ value: name })
+        });
+    } catch(e) {}
+}
+
+// Set game as active on load
+const _GAME_NAME = document.title.includes('Chess') ? 'Realm Chess' : 'Cosmic Blackjack';
+setActiveGame(_GAME_NAME);
+
+// Clear when tab closes or navigates away
+window.addEventListener('beforeunload', () => { setActiveGame('none'); });
+window.addEventListener('pagehide',     () => { setActiveGame('none'); });
 
 </script>
 </body>
