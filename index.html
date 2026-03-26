@@ -298,8 +298,12 @@
             letter-spacing: 0.02em; color: var(--text);
             min-height: 1em; opacity: 0; animation: fadeUp 0.8s 0.2s ease forwards; user-select: none;
         }
-        .hero-title .ol { -webkit-text-stroke: 2px rgba(232,230,225,0.2); color: transparent; }
-        [data-theme="light"] .hero-title .ol { -webkit-text-stroke: 2px rgba(20,20,20,0.18); }
+        .hero-title .ol {
+            -webkit-text-stroke: 1.5px rgba(232,230,225,0.28);
+            color: transparent;
+            letter-spacing: 0.04em;
+        }
+        [data-theme="light"] .hero-title .ol { -webkit-text-stroke: 1.5px rgba(20,20,20,0.22); }
         .tcursor {
             display: inline-block; width: 3px; background: var(--text); margin-left: 3px;
             animation: blink 0.75s step-end infinite; vertical-align: baseline; height: 0.75em; position: relative; top: 0.04em;
@@ -383,7 +387,41 @@
         .lb-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
         .lb-head p { font-size: 0.57rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--mid); white-space: nowrap; }
         .lb-head::after { content:''; flex:1; height:1px; background:var(--border); }
-        .lb-tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+        .lb-top-row {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap; gap: 12px;
+            margin-bottom: 14px;
+        }
+        .lb-tabs { display: flex; gap: 4px; }
+        .lb-name-wrap {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .lb-name-label {
+            font-size: 0.56rem; letter-spacing: 0.16em;
+            text-transform: uppercase; color: var(--mid);
+            white-space: nowrap;
+        }
+        .lb-name-input {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.7rem; color: var(--text);
+            background: var(--card); border: 1px solid var(--border-h);
+            border-radius: 4px; padding: 5px 10px;
+            outline: none; width: 130px;
+            transition: border-color 0.2s;
+        }
+        .lb-name-input:focus { border-color: var(--mid); }
+        .lb-name-input::placeholder { color: var(--dim); }
+        .lb-name-save {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.56rem; letter-spacing: 0.16em;
+            text-transform: uppercase; color: var(--text);
+            background: var(--card); border: 1px solid var(--border-h);
+            border-radius: 4px; padding: 6px 12px;
+            cursor: none; transition: all 0.2s;
+        }
+        .lb-name-save:hover { background: var(--card-h); border-color: var(--text); }
+        .lb-name-save.saved { color: var(--green); border-color: var(--green); }
         .lb-tab { font-family: 'Outfit', sans-serif; font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid); padding: 6px 15px; border-radius: 4px; border: 1px solid var(--border); background: transparent; cursor: none; transition: all 0.2s; }
         .lb-tab:hover, .lb-tab.active { background: var(--card); color: var(--text); border-color: var(--border-h); }
         .lb-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
@@ -397,6 +435,96 @@
         .rg { font-size: 0.67rem; letter-spacing: 0.06em; color: var(--mid); }
         .rs { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; color: var(--text); text-align: right; }
         .lb-empty, .lb-load { padding: 38px 20px; text-align: center; font-size: 0.7rem; letter-spacing: 0.1em; color: var(--mid); }
+
+        /* ── SCROLL HINTS ── */
+        .scroll-hint {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 52px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative; z-index: 2;
+            animation: fadeUp 0.6s ease both;
+            cursor: default;
+        }
+        .scroll-hint span {
+            font-size: 0.6rem;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--mid);
+        }
+        .scroll-hint svg {
+            width: 14px; height: 14px;
+            stroke: var(--mid); fill: none;
+            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+            animation: bounceDown 1.8s ease-in-out infinite;
+        }
+        @keyframes bounceDown {
+            0%,100% { transform: translateY(0); opacity: 0.5; }
+            50%      { transform: translateY(4px); opacity: 1; }
+        }
+
+        /* ── ABOUT ── */
+        .about-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 52px 96px;
+            position: relative; z-index: 2;
+        }
+        .about-inner {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 60px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+        .about-label {
+            font-size: 0.58rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--mid);
+            margin-bottom: 20px;
+        }
+        .about-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.4rem, 5vw, 4rem);
+            line-height: 1;
+            letter-spacing: 0.03em;
+            color: var(--text);
+        }
+        .about-outline {
+            -webkit-text-stroke: 1.5px rgba(232,230,225,0.25);
+            color: transparent;
+        }
+        [data-theme="light"] .about-outline {
+            -webkit-text-stroke: 1.5px rgba(20,20,20,0.2);
+        }
+        .about-text {
+            font-size: 0.83rem;
+            line-height: 1.85;
+            color: var(--mid);
+            margin-bottom: 18px;
+        }
+        .about-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 28px;
+        }
+        .about-tag {
+            font-size: 0.57rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--mid);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 12px;
+        }
+        @media (max-width: 700px) {
+            .about-inner { grid-template-columns: 1fr; gap: 32px; }
+            .about-wrap, .scroll-hint { padding-left: 24px; padding-right: 24px; }
+        }
 
         /* ── FOOTER ── */
         footer { max-width: 1200px; margin: 0 auto; padding: 24px 52px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
@@ -542,15 +670,51 @@
         </div>
     </div>
 
+    <div class="scroll-hint" id="hint1">
+        <span>Global Leaderboard</span>
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
     <div class="lb-wrap">
         <div class="lb-head"><p>Global Leaderboard</p></div>
-        <div class="lb-tabs">
-            <button class="lb-tab active" data-g="all">All Games</button>
-            <button class="lb-tab" data-g="Realm Chess">Realm Chess</button>
-            <button class="lb-tab" data-g="Cosmic Blackjack">Cosmic Blackjack</button>
+        <div class="lb-top-row">
+            <div class="lb-tabs">
+                <button class="lb-tab active" data-g="all">All Games</button>
+                <button class="lb-tab" data-g="Realm Chess">Realm Chess</button>
+                <button class="lb-tab" data-g="Cosmic Blackjack">Cosmic Blackjack</button>
+            </div>
+            <div class="lb-name-wrap">
+                <span class="lb-name-label">Your name on the board:</span>
+                <input class="lb-name-input" id="lbNameInput" type="text" maxlength="18" placeholder="Enter name…" />
+                <button class="lb-name-save" id="lbNameSave">Save</button>
+            </div>
         </div>
         <div class="lb-box" id="lbBox">
             <div class="lb-load">Loading scores...</div>
+        </div>
+    </div>
+
+    <div class="scroll-hint" id="hint2">
+        <span>About The Grid</span>
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <div class="about-wrap">
+        <div class="about-inner">
+            <div class="about-left">
+                <p class="about-label">Mission</p>
+                <h2 class="about-title">Games built<br><span class="about-outline">from scratch.</span></h2>
+            </div>
+            <div class="about-right">
+                <p class="about-text">The Grid is a personal arcade — a collection of browser-based games designed and built entirely from the ground up. No engines, no templates. Just code, creativity, and a passion for making things that feel good to play.</p>
+                <p class="about-text">Each game is crafted with attention to detail — from mechanics to interface. New titles are always in development. The grid keeps growing.</p>
+                <div class="about-tags">
+                    <span class="about-tag">Browser-based</span>
+                    <span class="about-tag">Built by BTSAI</span>
+                    <span class="about-tag">Always Expanding</span>
+                    <span class="about-tag">Free to Play</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -977,6 +1141,22 @@ document.querySelectorAll('.lb-tab').forEach(tab => {
 });
 
 fetchLB();
+
+// ── PLAYER NAME ──
+const nameInput = document.getElementById('lbNameInput');
+const nameSave  = document.getElementById('lbNameSave');
+const savedName = localStorage.getItem('btsai_player_name');
+if (savedName) nameInput.value = savedName;
+
+nameSave.addEventListener('click', () => {
+    const val = nameInput.value.trim();
+    if (!val) return;
+    localStorage.setItem('btsai_player_name', val);
+    nameSave.textContent = 'Saved ✓';
+    nameSave.classList.add('saved');
+    setTimeout(() => { nameSave.textContent = 'Save'; nameSave.classList.remove('saved'); }, 2000);
+});
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') nameSave.click(); });
 </script>
 </body>
 </html>
