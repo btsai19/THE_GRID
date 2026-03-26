@@ -3,163 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTSAI Arcade | System OS</title>
+    <title>BTSAI Arcade | Premium</title>
     <style>
         :root {
-            --neon-cyan: #00f2ff;
-            --neon-purple: #bc13fe;
-            --bg-dark: #05050a;
-            --card-bg: rgba(20, 20, 30, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-main: #ffffff;
         }
 
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: radial-gradient(circle at center, #101025 0%, #05050a 100%);
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            /* Modern Mesh Gradient Background */
+            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
+            background-attachment: fixed;
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Header Stats Bar */
-        .status-bar {
-            width: 100%;
-            padding: 15px 0;
-            background: rgba(0, 0, 0, 0.5);
-            border-bottom: 1px solid var(--neon-cyan);
-            display: flex;
-            justify-content: space-around;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--neon-cyan);
-        }
-
-        .status-item span { color: white; margin-left: 5px; }
-
+        /* Glassmorphism Header */
         header {
-            margin: 40px 0;
+            width: 100%;
+            padding: 40px 0;
             text-align: center;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 40px;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-weight: 300;
+            font-size: 2.2rem;
+            letter-spacing: 8px;
             margin: 0;
             text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
         }
 
-        .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.7;
-            margin-top: 10px;
-            letter-spacing: 3px;
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.6;
         }
 
-        /* Game Grid */
+        /* The Glass Grid */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
             width: 90%;
-            max-width: 1000px;
-            padding-bottom: 50px;
+            max-width: 1100px;
+            padding-bottom: 60px;
         }
 
-        .card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px); /* This creates the frosted effect */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 30px;
             text-decoration: none;
             color: white;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* Live Game Styles */
-        .card.live.chess { border-left: 5px solid var(--neon-cyan); }
-        .card.live.blackjack { border-left: 5px solid var(--neon-purple); }
-
-        .card.live:hover {
-            transform: translateY(-5px);
-            background: rgba(30, 30, 50, 1);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+        .glass-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
         }
 
-        .card h2 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
-        .tag {
-            font-size: 0.7rem;
-            background: rgba(0, 242, 255, 0.2);
-            color: var(--neon-cyan);
-            padding: 3px 8px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-bottom: 15px;
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
         }
 
-        /* Locked Styles */
-        .card.locked {
-            opacity: 0.4;
+        h2 {
+            font-weight: 400;
+            margin: 10px 0;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+
+        .play-hint {
+            font-size: 0.8rem;
+            margin-top: 15px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Locked State */
+        .locked {
+            opacity: 0.3;
             cursor: not-allowed;
-            filter: grayscale(1);
+            filter: grayscale(100%);
         }
 
-        .lock-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .locked:hover { transform: none; }
 
-        .btn-label {
-            margin-top: 20px;
-            display: block;
-            font-weight: bold;
-            color: var(--neon-cyan);
-        }
     </style>
 </head>
 <body>
 
-    <div class="status-bar">
-        <div class="status-item">PLAYER: <span>BTSAI_DEV</span></div>
-        <div class="status-item">STATUS: <span style="color: #00ff00;">ONLINE</span></div>
-        <div class="status-item">REGION: <span>TW_NORTH</span></div>
-    </div>
-
     <header>
         <h1>BTSAI ARCADE</h1>
-        <div class="subtitle">NEURAL INTERFACE V1.0</div>
+        <div class="stats-row">
+            <span>Level: 01</span>
+            <span>•</span>
+            <span>Developer: BTSAI</span>
+            <span>•</span>
+            <span>Status: Verified</span>
+        </div>
     </header>
 
     <div class="grid">
-        <a href="Realm-Chess/" class="card live chess">
-            <span class="tag">STRATEGY</span>
+        <a href="Realm-Chess/" class="glass-card">
+            <div class="icon-circle">♟</div>
             <h2>REALM CHESS</h2>
-            <span class="btn-label">LAUNCH GAME _</span>
+            <div class="play-hint">Begin Session</div>
         </a>
 
-        <a href="Cosmic-Blackjack/" class="card live blackjack">
-            <span class="tag">RISK</span>
+        <a href="Cosmic-Blackjack/" class="glass-card">
+            <div class="icon-circle">🃏</div>
             <h2>COSMIC BLACKJACK</h2>
-            <span class="btn-label" style="color: var(--neon-purple);">LAUNCH GAME _</span>
+            <div class="play-hint">Begin Session</div>
         </a>
 
-        <div class="card locked">
-            <span class="lock-icon">🔒</span>
+        <div class="glass-card locked">
+            <div class="icon-circle">🔒</div>
             <h2>ENCRYPTED</h2>
-            <p style="font-size: 0.8rem;">Project: Sector 3</p>
+            <div class="play-hint">Awaiting Access</div>
         </div>
 
-        <div class="card locked">
-            <span class="lock-icon">🔒</span>
+        <div class="glass-card locked">
+            <div class="icon-circle">🔒</div>
             <h2>ENCRYPTED</h2>
-            <p style="font-size: 0.8rem;">Project: Sector 4</p>
+            <div class="play-hint">Awaiting Access</div>
         </div>
     </div>
 
 </body>
-</html> 
+</html>
