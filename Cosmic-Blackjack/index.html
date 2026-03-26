@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#080f20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>VOID21 — Cosmic Blackjack</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -30,16 +33,27 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  height: 100%;
+  height: -webkit-fill-available;
+  background: #080f20;
+}
+
 body {
   background: linear-gradient(160deg, #0a1428 0%, #080f20 50%, #0c1530 100%);
+  background-attachment: fixed;
   color: var(--text);
   font-family: 'Rajdhani', sans-serif;
   min-height: 100vh;
   min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  width: 100%;
   overflow-x: hidden;
   position: relative;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+  /* Prevent any gap caused by safe area on notched phones */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* ── STARFIELD ── */
@@ -66,7 +80,7 @@ body {
 .nebula-3 { width: 400px; height: 400px; background: rgba(255,107,157,0.06); top: 40%; left: 30%; }
 
 /* ── LAYOUT ── */
-#app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+#app { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: transparent; }
 
 /* ── SCREENS ── */
 .screen { display: none; }
@@ -1934,8 +1948,10 @@ function renderPlayerRow(p, i, container) {
   // canDouble: only on first action of current active hand, 2 cards in that hand
   const activeHandLen = (isActive && p.splitHand && p.playingSplit) ? p.splitHand.length : (isActive ? p.hand.length : 0);
   const canDouble = isActive && activeHandLen === 2 && p.chips >= p.bet;
-  // canSplit: only if no split yet, both cards same rank, 2 cards in hand
-  const canSplit = isActive && p.hand.length === 2 && !p.splitHand && p.hand[0].rank === p.hand[1].rank && p.chips >= p.bet;
+  // canSplit: no split yet, 2 cards, both worth 10 (any combo of 10/J/Q/K) or exact same rank
+  const splitVal = (r) => ['10','J','Q','K'].includes(r);
+  const canSplit = isActive && p.hand.length === 2 && !p.splitHand && p.chips >= p.bet &&
+    ((splitVal(p.hand[0].rank) && splitVal(p.hand[1].rank)) || p.hand[0].rank === p.hand[1].rank);
 
   // Cards — main hand
   let cardsHTML = `<div style="display:flex;flex-direction:column;gap:4px;">`;
