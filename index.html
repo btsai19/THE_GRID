@@ -1,35 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>BTSAI Arcade</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTSAI Arcade | System OS</title>
     <style>
-        body { 
-            font-family: sans-serif; 
-            text-align: center; 
-            padding: 50px 20px; 
-            background: #1a1a1a; 
-            color: white; 
+        :root {
+            --neon-cyan: #00f2ff;
+            --neon-purple: #bc13fe;
+            --bg-dark: #05050a;
+            --card-bg: rgba(20, 20, 30, 0.8);
         }
-        h1 { margin-bottom: 40px; }
-        a { 
-            display: block; 
-            padding: 20px; 
-            margin: 15px auto; 
-            max-width: 300px;
-            background: #333; 
-            color: #00ffcc; 
-            text-decoration: none; 
-            border-radius: 12px; 
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at center, #101025 0%, #05050a 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header Stats Bar */
+        .status-bar {
+            width: 100%;
+            padding: 15px 0;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid var(--neon-cyan);
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon-cyan);
+        }
+
+        .status-item span { color: white; margin-left: 5px; }
+
+        header {
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 10px;
+            letter-spacing: 3px;
+        }
+
+        /* Game Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 90%;
+            max-width: 1000px;
+            padding-bottom: 50px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Live Game Styles */
+        .card.live.chess { border-left: 5px solid var(--neon-cyan); }
+        .card.live.blackjack { border-left: 5px solid var(--neon-purple); }
+
+        .card.live:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 30, 50, 1);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+        }
+
+        .card h2 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
+        .tag {
+            font-size: 0.7rem;
+            background: rgba(0, 242, 255, 0.2);
+            color: var(--neon-cyan);
+            padding: 3px 8px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        /* Locked Styles */
+        .card.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .lock-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+
+        .btn-label {
+            margin-top: 20px;
+            display: block;
             font-weight: bold;
-            border: 1px solid #444;
+            color: var(--neon-cyan);
         }
-        a:active { background: #444; } /* Makes it feel like a button when tapped on mobile */
     </style>
 </head>
 <body>
-    <h1>BTSAI Arcade</h1>
-    <a href="Realm-Chess/">Play Chess</a>
-    <a href="Cosmic-Blackjack/">Play Blackjack</a>
+
+    <div class="status-bar">
+        <div class="status-item">PLAYER: <span>BTSAI_DEV</span></div>
+        <div class="status-item">STATUS: <span style="color: #00ff00;">ONLINE</span></div>
+        <div class="status-item">REGION: <span>TW_NORTH</span></div>
+    </div>
+
+    <header>
+        <h1>BTSAI ARCADE</h1>
+        <div class="subtitle">NEURAL INTERFACE V1.0</div>
+    </header>
+
+    <div class="grid">
+        <a href="Realm-Chess/" class="card live chess">
+            <span class="tag">STRATEGY</span>
+            <h2>REALM CHESS</h2>
+            <span class="btn-label">LAUNCH GAME _</span>
+        </a>
+
+        <a href="Cosmic-Blackjack/" class="card live blackjack">
+            <span class="tag">RISK</span>
+            <h2>COSMIC BLACKJACK</h2>
+            <span class="btn-label" style="color: var(--neon-purple);">LAUNCH GAME _</span>
+        </a>
+
+        <div class="card locked">
+            <span class="lock-icon">🔒</span>
+            <h2>ENCRYPTED</h2>
+            <p style="font-size: 0.8rem;">Project: Sector 3</p>
+        </div>
+
+        <div class="card locked">
+            <span class="lock-icon">🔒</span>
+            <h2>ENCRYPTED</h2>
+            <p style="font-size: 0.8rem;">Project: Sector 4</p>
+        </div>
+    </div>
+
 </body>
 </html>
