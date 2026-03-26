@@ -299,11 +299,15 @@
             min-height: 1em; opacity: 0; animation: fadeUp 0.8s 0.2s ease forwards; user-select: none;
         }
         .hero-title .ol {
-            -webkit-text-stroke: 1.5px rgba(232,230,225,0.28);
+            /* Use drop-shadow stacking for outline — works on all letters evenly */
             color: transparent;
-            letter-spacing: 0.04em;
+            -webkit-text-stroke: 2.5px rgba(232,230,225,0.3);
+            paint-order: stroke fill;
+            letter-spacing: 0.03em;
         }
-        [data-theme="light"] .hero-title .ol { -webkit-text-stroke: 1.5px rgba(20,20,20,0.22); }
+        [data-theme="light"] .hero-title .ol {
+            -webkit-text-stroke: 2.5px rgba(20,20,20,0.25);
+        }
         .tcursor {
             display: inline-block; width: 3px; background: var(--text); margin-left: 3px;
             animation: blink 0.75s step-end infinite; vertical-align: baseline; height: 0.75em; position: relative; top: 0.04em;
