@@ -83,7 +83,11 @@
         #splash.show .sp-sub   { opacity: 1; }
         #splash.out { opacity: 0; transform: translateY(-100%); transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.76,0,0.24,1); }
 
-        /* ── CURSOR: comet trail ── */
+        /* ── CURSOR: comet trail — hidden on touch devices ── */
+        @media (hover: none) and (pointer: coarse) {
+            #cur-glow, #cur-dot, .cur-trail { display: none !important; }
+            body { cursor: auto !important; }
+        }
         #cur-glow {
             position: fixed; width: 480px; height: 480px; border-radius: 50%;
             pointer-events: none; z-index: 0; transform: translate(-50%,-50%);
@@ -568,12 +572,14 @@ setTimeout(() => {
     }, 2300);
 }, 80);
 
-// ── CURSOR: comet trail ──
+// ── CURSOR: comet trail — desktop only ──
+const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 const glowEl = document.getElementById('cur-glow');
 const dotEl  = document.getElementById('cur-dot');
 let mx=innerWidth/2, my=innerHeight/2, cx=mx, cy=my;
 
-// Build trail dots
+// Build trail dots (desktop only)
+if (!isTouch) document.body.style.cursor = 'none';
 const TRAIL_COUNT = 8;
 const trail = [];
 for (let i = 0; i < TRAIL_COUNT; i++) {
@@ -585,6 +591,7 @@ for (let i = 0; i < TRAIL_COUNT; i++) {
     trail.push({ el, x: mx, y: my });
 }
 
+if (!isTouch) {
 document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
 
 (function animAll(){
@@ -604,6 +611,7 @@ document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
     });
     requestAnimationFrame(animAll);
 })();
+} // end !isTouch
 
 // ── 3D TILT + PARTICLE + BORDER TRAIL on live cards ──
 const liveCards = document.querySelectorAll('.card:not(.locked)');
