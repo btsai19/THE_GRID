@@ -6,6 +6,20 @@
 <title>Realm Chess</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Raleway:wght@300;400;500;600&display=swap');
+/* ── DESKTOP HINT ── */
+#orient-banner {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 9000; display: none; align-items: center; gap: 10px;
+  background: rgba(19,16,30,0.96); backdrop-filter: blur(12px);
+  border: 1px solid rgba(167,139,250,0.25); border-radius: 30px;
+  padding: 8px 18px; pointer-events: none;
+  animation: obFade 0.5s ease 1.5s both;
+}
+@keyframes obFade { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+.ob-text { font-family: 'Raleway', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(226,217,243,0.55); white-space: nowrap; }
+.ob-dot { width: 4px; height: 4px; border-radius: 50%; background: #A78BFA; opacity: 0.5; flex-shrink: 0; }
+@media (hover: none) and (pointer: coarse) { #orient-banner { display: flex; } }
+@media (orientation: landscape) and (max-width: 900px) { #orient-banner { display: none !important; } }
 :root {
   --bg:#13101E; --lsq:#2A2444; --dsq:#1A1630;
   --border:#3A3060; --panel:#1C1830; --panelB:#221E38;
@@ -1907,5 +1921,10 @@ function reopenResults() {
 function setupLegend(){['K','Q','R','B','N','P'].forEach(t=>{const e=document.getElementById('l'+t);if(e)e.innerHTML=getSVG(t,false);});}
 setupLegend();
 </script>
+<div id="orient-banner">
+  <div class="ob-dot"></div>
+  <span class="ob-text">Best on desktop · Mobile: rotate landscape</span>
+  <div class="ob-dot"></div>
+</div>
 </body>
 </html>
