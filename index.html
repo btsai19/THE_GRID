@@ -555,6 +555,20 @@
         .ap-title { font-size: 0.75rem; font-weight: 500; color: var(--text); letter-spacing: 0.04em; margin-bottom: 5px; }
         .ap-desc { font-size: 0.7rem; color: var(--mid); line-height: 1.6; }
 
+        /* ── DESKTOP HINT ── */
+        #desktop-hint {
+            display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            z-index: 390; align-items: center; gap: 10px;
+            background: rgba(22,22,22,0.94); backdrop-filter: blur(12px);
+            border: 1px solid var(--border-h); border-radius: 30px;
+            padding: 8px 18px; pointer-events: none;
+            animation: fadeUp 0.5s ease 2s both;
+        }
+        [data-theme="light"] #desktop-hint { background: rgba(239,236,231,0.94); }
+        .dh-text { font-family: 'Outfit', sans-serif; font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid); white-space: nowrap; }
+        .dh-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text); opacity: 0.3; flex-shrink: 0; }
+        @media (hover: none) and (pointer: coarse) { #desktop-hint { display: flex; } }
+
         /* ── MOBILE BOTTOM NAV ── */
         #mobile-nav {
             display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
@@ -749,7 +763,7 @@
 
     <nav id="nav">
         <a class="nav-logo-wrap" id="navLogo" href="#">
-            <span class="logo-main"><span class="txt" id="logoTxt">THE GRID</span></span>
+            <span class="logo-main"><span class="txt" id="logoTxt">BTSAI</span></span>
         </a>
         <div id="progress-bar"></div>
         <div class="nav-links">
@@ -997,6 +1011,13 @@
         <p>© 2025 BTSAI</p>
         <p>The Grid</p>
     </footer>
+
+    <!-- Desktop hint -->
+    <div id="desktop-hint">
+        <div class="dh-dot"></div>
+        <span class="dh-text">Best experienced on desktop</span>
+        <div class="dh-dot"></div>
+    </div>
 
     <!-- Mobile Bottom Nav -->
     <div id="mobile-nav">
@@ -1363,8 +1384,8 @@ window.addEventListener('scroll', () => {
     navEl.classList.toggle('scrolled', scrolled);
 
     // Scan line fires on state change only
-    if (scrolled && !wasScrolled) { triggerScan('BTSAI'); wasScrolled = true; }
-    if (!scrolled && wasScrolled) { triggerScan('THE GRID'); wasScrolled = false; }
+    if (scrolled && !wasScrolled) { triggerScan('THE GRID'); wasScrolled = true; }
+    if (!scrolled && wasScrolled) { triggerScan('BTSAI'); wasScrolled = false; }
 
     // Progress bar
     const total = document.body.scrollHeight - innerHeight;
