@@ -19,7 +19,7 @@
 .ob-text { font-family: 'Raleway', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(226,217,243,0.55); white-space: nowrap; }
 .ob-dot { width: 4px; height: 4px; border-radius: 50%; background: #A78BFA; opacity: 0.5; flex-shrink: 0; }
 @media (hover: none) and (pointer: coarse) { #orient-banner { display: flex; } }
-@media (hover: none) and (pointer: coarse) and (orientation: landscape) { #orient-banner { display: none !important; } }
+#orient-banner.hint-hidden { opacity: 0 !important; pointer-events: none; }
 :root {
   --bg:#13101E; --lsq:#2A2444; --dsq:#1A1630;
   --border:#3A3060; --panel:#1C1830; --panelB:#221E38;
@@ -472,6 +472,27 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .pbtn:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 20px var(--glow)}
 .pbtn svg{width:42px;height:42px;display:block}
 .pbtn .pnm{font-family:'Cinzel',serif;font-size:.4rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+/* ── HELP + MODAL STYLES ── */
+.chess-help-btn{width:28px;height:28px;border-radius:50%;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:700;font-family:'Cinzel',serif;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.chess-help-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ch-modal-backdrop{position:fixed;inset:0;z-index:300;background:rgba(8,6,20,.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.ch-modal-backdrop.show{opacity:1;pointer-events:all;}
+.ch-modal-card{background:var(--panelB);border:1px solid var(--accent);border-radius:16px;padding:26px 26px 22px;max-width:380px;width:100%;box-shadow:0 0 30px var(--glow);}
+.ch-modal-title{font-family:'Cinzel Decorative',serif;font-size:1.1rem;letter-spacing:2px;color:var(--text);text-align:center;margin-bottom:16px;}
+.ch-modal-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+.ch-modal-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--accent);color:#13101E;font-size:11px;font-weight:700;font-family:'Cinzel',serif;display:flex;align-items:center;justify-content:center;}
+.ch-modal-step-title{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1px;color:var(--text);margin-bottom:2px;}
+.ch-modal-step-desc{font-size:.65rem;color:var(--muted);line-height:1.5;font-weight:500;}
+.ch-modal-close{margin-top:14px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--accent);background:none;color:var(--accent);font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.ch-modal-close:hover{background:var(--glow);}
+.ch-abandon-btns{display:flex;gap:8px;margin-top:16px;}
+.ch-abandon-btn{flex:1;padding:9px;border-radius:8px;cursor:pointer;font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s;border:1px solid;}
+.ch-abandon-btn.stay{background:none;border-color:var(--border);color:var(--muted);}
+.ch-abandon-btn.stay:hover{border-color:var(--muted);color:var(--text);}
+.ch-abandon-btn.quit{background:rgba(248,113,113,.1);border-color:var(--red);color:var(--red);}
+.ch-abandon-btn.quit:hover{background:rgba(248,113,113,.22);}
+#orient-banner.hint-hidden{opacity:0!important;pointer-events:none;}
+
 </style>
 </head>
 <body>
@@ -500,7 +521,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="mode-badge">Two Players</div>
     </div>
   </div>
-  <a href="../index.html" style="font-family:'Raleway',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);text-decoration:none;opacity:0.6;transition:opacity 0.2s;margin-top:-8px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">← THE GRID</a>
+  <button class="chess-help-btn" onclick="openChessHow()" title="How to play" style="margin-top:8px;">?</button>
+  <a href="../index.html" style="font-family:'Raleway',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);text-decoration:none;opacity:0.6;transition:opacity 0.2s;margin-top:4px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">← THE GRID</a>
 </div>
 
 <!-- ══ GAME ══ -->
@@ -511,6 +533,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     <div class="game-title">⚔ <em>REALM</em> CHESS ⚔</div>
     <div class="header-right">
       <button class="ctrl-btn active-sound" id="sound-btn" onclick="toggleSound()">♪ Sound</button>
+      <button class="chess-help-btn" id="chess-help-btn" onclick="openChessHow()" title="How to play">?</button>
       <div class="mode-tag" id="mode-tag">vs AI</div>
     </div>
   </div>
@@ -649,6 +672,31 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <button onclick="resetGame()" style="background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s">
     New Quest
   </button>
+</div>
+
+<!-- ABANDON MODAL -->
+<div class="ch-modal-backdrop" id="ch-abandon-modal">
+  <div class="ch-modal-card">
+    <div class="ch-modal-title">Abandon Quest?</div>
+    <p style="font-size:.65rem;color:var(--muted);text-align:center;line-height:1.6;font-weight:500;">Your current game will end and you'll return to the mode selection screen.</p>
+    <div class="ch-abandon-btns">
+      <button class="ch-abandon-btn stay" onclick="closeChessAbandon()">Keep Playing</button>
+      <button class="ch-abandon-btn quit" onclick="confirmChessAbandon()">Abandon</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOW TO PLAY MODAL -->
+<div class="ch-modal-backdrop" id="ch-how-modal">
+  <div class="ch-modal-card">
+    <div class="ch-modal-title">How to Play</div>
+    <div class="ch-modal-step"><div class="ch-modal-num">1</div><div><div class="ch-modal-step-title">Select a Piece</div><div class="ch-modal-step-desc">Click or tap any of your pieces to select it. Valid moves highlight on the board. Drag pieces to move them.</div></div></div>
+    <div class="ch-modal-step"><div class="ch-modal-num">2</div><div><div class="ch-modal-step-title">Move & Capture</div><div class="ch-modal-step-desc">Click a highlighted square to move. Land on an enemy piece to capture it. Captured pieces appear in your panel.</div></div></div>
+    <div class="ch-modal-step"><div class="ch-modal-num">3</div><div><div class="ch-modal-step-title">Special Moves</div><div class="ch-modal-step-desc">Castling: move your Dragon 2 squares toward a Dwarf. En passant: capture a Fairy that just double-moved. Promotion: a Fairy reaching the far end becomes any piece.</div></div></div>
+    <div class="ch-modal-step"><div class="ch-modal-num">4</div><div><div class="ch-modal-step-title">Win the Realm</div><div class="ch-modal-step-desc">Put the enemy Dragon in checkmate — a check it cannot escape. Stalemate (no legal moves, not in check) is a draw.</div></div></div>
+    <div class="ch-modal-step" style="margin-bottom:0"><div class="ch-modal-num">5</div><div><div class="ch-modal-step-title">Pieces</div><div class="ch-modal-step-desc">Dragon=King · Wizard=Queen · Dwarf=Rook · Elf=Bishop · Knight=Knight · Fairy=Pawn</div></div></div>
+    <button class="ch-modal-close" onclick="closeChessHow()">✕ Got It</button>
+  </div>
 </div>
 
 <script>
@@ -1099,9 +1147,19 @@ function startGame(mode) {
 }
 
 function goBack() {
+  // If game is in progress (not over, timer has started), show abandon confirm
+  if (!over && timerActive) {
+    document.getElementById('ch-abandon-modal').classList.add('show');
+    return;
+  }
+  _doGoBack();
+}
+
+function _doGoBack() {
   stopTimer();
   hideVictory();
   document.getElementById('results-banner').style.display = 'none';
+  document.getElementById('ch-abandon-modal').classList.remove('show');
   const gs = document.getElementById('game-screen');
   gs.style.animation = 'fadeOut .3s ease forwards';
   setTimeout(() => {
@@ -1923,11 +1981,43 @@ function reopenResults() {
 }
 
 function setupLegend(){['K','Q','R','B','N','P'].forEach(t=>{const e=document.getElementById('l'+t);if(e)e.innerHTML=getSVG(t,false);});}
+
+// ── SOUND FIX — resume AudioContext on first user interaction ──
+document.addEventListener('click', () => { try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){} }, { once: true });
+
+// ── ABANDON MODAL ──
+function closeChessAbandon() {
+  document.getElementById('ch-abandon-modal').classList.remove('show');
+}
+function confirmChessAbandon() {
+  _doGoBack();
+}
+document.getElementById('ch-abandon-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeChessAbandon();
+});
+
+// ── HOW TO PLAY ──
+function openChessHow() { document.getElementById('ch-how-modal').classList.add('show'); }
+function closeChessHow() { document.getElementById('ch-how-modal').classList.remove('show'); }
+document.getElementById('ch-how-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeChessHow();
+});
+
+// ── DESKTOP HINT — fade on first interaction ──
+(function() {
+  var h = document.getElementById('orient-banner');
+  if (!h) return;
+  var fade = function() { h.classList.add('hint-hidden'); };
+  document.addEventListener('click', fade, { once: true });
+  document.addEventListener('touchstart', fade, { once: true, passive: true });
+  setTimeout(function() { h.classList.add('hint-hidden'); }, 9000);
+})();
+
 setupLegend();
 </script>
 <div id="orient-banner">
   <div class="ob-dot"></div>
-  <span class="ob-text">Best on desktop · Mobile: rotate landscape</span>
+  <span class="ob-text">Best experienced on desktop</span>
   <div class="ob-dot"></div>
 </div>
 </body>
