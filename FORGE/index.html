@@ -8,47 +8,51 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:        #f2ede8;
-  --bg2:       #ede7e0;
-  --surface:   #faf8f5;
-  --surface2:  #f0ebe4;
-  --border:    rgba(160,110,60,0.14);
-  --border-h:  rgba(160,110,60,0.3);
-  --text:      #1c1410;
-  --text-dim:  rgba(28,20,16,0.5);
-  --text-muted:rgba(28,20,16,0.3);
-  --fire:      #e85a10;
-  --fire2:     #c44008;
-  --amber:     #d4820a;
-  --gold:      #c89a20;
-  --fire-glow: 0 0 20px rgba(232,90,16,0.25);
-  --shadow:    0 2px 12px rgba(100,60,20,0.1);
-  --shadow-lg: 0 8px 32px rgba(100,60,20,0.15);
+  --bg:        #f1f0ee;
+  --bg2:       #eae8e5;
+  --surface:   #fafaf9;
+  --surface2:  #f0efec;
+  --border:    rgba(120,100,80,0.13);
+  --border-h:  rgba(120,100,80,0.28);
+  --text:      #1a1714;
+  --text-dim:  rgba(26,23,20,0.52);
+  --text-muted:rgba(26,23,20,0.32);
+  --fire:      #d94e0a;
+  --fire2:     #b83c06;
+  --amber:     #c07808;
+  --fire-glow: 0 0 18px rgba(217,78,10,0.22);
+  --shadow:    0 1px 8px rgba(80,50,20,0.09);
+  --shadow-lg: 0 6px 28px rgba(80,50,20,0.14);
   --header-h:  56px;
-  --t1-bg:#e8e2da; --t1-c:#7a6050;
-  --t2-bg:#f0d4a0; --t2-c:#6a4808;
-  --t3-bg:#f4b860; --t3-c:#5a3206;
-  --t4-bg:#f09030; --t4-c:#fff;
-  --t5-bg:#e86018; --t5-c:#fff;
-  --t6-bg:#d42808; --t6-c:#fff;
-  --t7-bg:#9010b8; --t7-c:#fff;
+  --t1-bg:#e8e5e0; --t1-c:#6a5c50;
+  --t2-bg:#f0d49a; --t2-c:#6a4608;
+  --t3-bg:#f0b050; --t3-c:#5a3006;
+  --t4-bg:#e88020; --t4-c:#fff;
+  --t5-bg:#d85010; --t5-c:#fff;
+  --t6-bg:#c02008; --t6-c:#fff;
+  --t7-bg:#8810b0; --t7-c:#fff;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;min-height:100dvh;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:400;overflow-x:hidden;-webkit-tap-highlight-color:transparent;}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(232,90,16,0.06) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 10% 90%,rgba(200,140,20,0.05) 0%,transparent 55%);}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 55% 35% at 85% 8%,rgba(217,78,10,0.055) 0%,transparent 60%),radial-gradient(ellipse 45% 25% at 12% 92%,rgba(192,120,8,0.04) 0%,transparent 55%);}
 
 /* HEADER */
-#header{position:fixed;top:0;left:0;right:0;height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(242,237,232,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;}
+#header{position:fixed;top:0;left:0;right:0;height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(241,240,238,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:100;}
 #header-left{display:flex;align-items:center;gap:14px;}
-#portal-btn{color:var(--text-dim);font-size:17px;text-decoration:none;opacity:0.6;transition:opacity 0.2s,color 0.2s;}
+#portal-btn{color:var(--text-dim);font-size:17px;text-decoration:none;opacity:0.65;transition:opacity 0.2s,color 0.2s;}
 #portal-btn:hover{opacity:1;color:var(--fire);}
 #game-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);}
 #game-logo span{font-family:'DM Sans',sans-serif;font-weight:300;color:var(--text-dim);font-size:11px;letter-spacing:0.06em;margin-left:8px;}
 #header-right{display:flex;align-items:center;gap:10px;}
-.hdr-btn{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all 0.2s;}
-.hdr-btn:hover{border-color:var(--border-h);color:var(--text);}
-#help-btn{width:28px;height:28px;border-radius:50%;background:none;border:1px solid var(--border);color:var(--text-dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-weight:600;}
-#help-btn:hover{border-color:var(--fire);color:var(--fire);}
+.hdr-btn{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all 0.2s;opacity:0.85;}
+.hdr-btn:hover{border-color:var(--border-h);color:var(--text);opacity:1;}
+#help-btn{width:28px;height:28px;border-radius:50%;background:none;border:1px solid var(--border);color:var(--text-dim);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-weight:600;opacity:0.85;}
+#help-btn:hover{border-color:var(--fire);color:var(--fire);opacity:1;}
+
+/* header hides portal+menu on menu screens */
+#header.on-menu #portal-btn,
+#header.on-menu #menu-btn,
+#header.on-menu #help-btn { display:none; }
 
 /* SCREENS */
 .screen{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity 0.3s,transform 0.3s;}
@@ -76,7 +80,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .opt-grid{display:flex;flex-direction:column;gap:8px;width:100%;margin-bottom:20px;}
 .opt-card{width:100%;padding:14px 18px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:14px;}
 .opt-card:hover{border-color:var(--border-h);background:var(--surface2);box-shadow:var(--shadow);}
-.opt-card.selected{border-color:var(--fire);background:rgba(232,90,16,0.04);box-shadow:0 0 0 1px rgba(232,90,16,0.12);}
+.opt-card.selected{border-color:var(--fire);background:rgba(217,78,10,0.04);box-shadow:0 0 0 1px rgba(217,78,10,0.1);}
 .opt-card-icon{font-size:22px;flex-shrink:0;width:36px;text-align:center;}
 .opt-card-body{flex:1;}
 .opt-card-title{font-weight:600;font-size:13px;color:var(--text);margin-bottom:2px;}
@@ -117,9 +121,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .tile.empty{background:var(--surface2);border:1.5px dashed var(--border);cursor:default;box-shadow:none;}
 .tile.empty:hover{transform:none;}
 .tile.merge-flash{animation:mergeFlash 0.38s ease forwards;}
-@keyframes mergeFlash{0%{transform:scale(1.2);filter:brightness(1.4);}55%{transform:scale(0.95);}100%{transform:scale(1);filter:brightness(1);}}
+@keyframes mergeFlash{0%{transform:scale(1.2);filter:brightness(1.35);}55%{transform:scale(0.95);}100%{transform:scale(1);filter:brightness(1);}}
 .tile.spawn-anim{animation:spawnIn 0.24s cubic-bezier(0.22,1,0.36,1) forwards;}
 @keyframes spawnIn{0%{transform:scale(0.3);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.tile.no-match{animation:shakeNo 0.32s ease;}
+@keyframes shakeNo{0%,100%{transform:scale(1.07) translateX(0);}25%{transform:scale(1.07) translateX(-5px);}75%{transform:scale(1.07) translateX(5px);}}
 .tile-icon{line-height:1;pointer-events:none;}
 .tile-name{font-size:0.6em;font-weight:600;letter-spacing:0.03em;margin-top:3px;pointer-events:none;opacity:0.85;}
 
@@ -130,28 +136,42 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .t5{background:var(--t5-bg);color:var(--t5-c);}
 .t6{background:var(--t6-bg);color:var(--t6-c);}
 .t7{background:var(--t7-bg);color:var(--t7-c);}
-.t8{background:linear-gradient(135deg,#e8c020,#d4960a);color:#fff;box-shadow:0 0 14px rgba(200,154,20,0.5);}
+.t8{background:linear-gradient(135deg,#e0b818,#c88c08);color:#fff;box-shadow:0 0 12px rgba(192,140,8,0.45);}
+
+/* MODALS shared */
+.modal-backdrop{position:fixed;inset:0;z-index:300;background:rgba(26,23,20,0.4);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.modal-backdrop.show{opacity:1;pointer-events:all;}
+.modal-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-lg);}
+
+/* ABANDON MODAL */
+#abandon-modal .modal-card{padding:26px 26px 22px;max-width:300px;width:100%;text-align:center;}
+.abandon-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:8px;}
+.abandon-sub{font-size:12px;color:var(--text-dim);margin-bottom:20px;line-height:1.5;}
+.abandon-btns{display:flex;gap:8px;}
+.abandon-btn{flex:1;padding:10px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;border:1.5px solid transparent;}
+.abandon-btn.cancel{background:none;border-color:var(--border);color:var(--text-dim);}
+.abandon-btn.cancel:hover{border-color:var(--border-h);color:var(--text);}
+.abandon-btn.confirm{background:rgba(217,78,10,0.08);border-color:var(--fire);color:var(--fire);}
+.abandon-btn.confirm:hover{background:rgba(217,78,10,0.16);}
 
 /* HOW TO PLAY */
-#how-modal{position:fixed;inset:0;z-index:300;background:rgba(28,20,16,0.45);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s;}
-#how-modal.open{opacity:1;pointer-events:all;}
-.how-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 26px 22px;max-width:380px;width:100%;box-shadow:var(--shadow-lg);}
-.how-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+#how-modal .modal-card{padding:24px 24px 20px;max-width:380px;width:100%;}
+.how-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .how-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);}
 .how-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--text-dim);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
 .how-close:hover{border-color:var(--fire);color:var(--fire);}
-.how-steps{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+.how-steps{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
 .how-step{display:flex;gap:12px;align-items:flex-start;}
-.how-num{width:24px;height:24px;border-radius:50%;flex-shrink:0;background:var(--fire);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.how-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--fire);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 .how-step-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:1px;}
 .how-step-desc{font-size:11px;color:var(--text-dim);line-height:1.5;}
 .how-tiers{background:var(--bg2);border-radius:8px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:5px;}
 .htc{font-size:10px;font-weight:500;padding:3px 7px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;}
 
 /* RESULT */
-.overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(28,20,16,0.55);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity 0.3s;padding:20px;}
+.overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(26,23,20,0.5);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity 0.3s;padding:20px;}
 .overlay.show{opacity:1;pointer-events:all;}
-.result-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 30px;text-align:center;max-width:350px;width:100%;box-shadow:var(--shadow-lg);}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 30px;text-align:center;max-width:350px;width:100%;box-shadow:var(--shadow-lg);}
 .result-icon{font-size:38px;margin-bottom:10px;}
 .result-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text);margin-bottom:4px;}
 .result-title.fire{color:var(--fire);}
@@ -165,8 +185,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 #score-name{flex:1;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
 #score-name:focus{border-color:var(--fire);}
 #score-name::placeholder{color:var(--text-muted);}
-#submit-score-btn{padding:8px 14px;border-radius:8px;cursor:pointer;background:rgba(232,90,16,0.08);border:1px solid var(--fire);color:var(--fire);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;transition:all 0.2s;white-space:nowrap;}
-#submit-score-btn:hover{background:rgba(232,90,16,0.15);}
+#submit-score-btn{padding:8px 14px;border-radius:8px;cursor:pointer;background:rgba(217,78,10,0.08);border:1px solid var(--fire);color:var(--fire);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;transition:all 0.2s;white-space:nowrap;}
+#submit-score-btn:hover{background:rgba(217,78,10,0.15);}
 #submit-score-btn:disabled{opacity:0.35;cursor:default;}
 #submit-msg{font-size:11px;color:var(--fire);min-height:14px;margin-bottom:8px;}
 .result-btns{display:flex;flex-direction:column;gap:8px;}
@@ -177,9 +197,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 .result-btn.secondary:hover{border-color:var(--border-h);color:var(--text);}
 
 /* DESKTOP HINT */
-#desktop-hint{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:300;font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);background:rgba(242,237,232,0.92);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:20px;padding:6px 16px;white-space:nowrap;opacity:0;transition:opacity 0.5s;}
+#desktop-hint{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:300;font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);background:rgba(241,240,238,0.94);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:20px;padding:6px 16px;white-space:nowrap;opacity:0;transition:opacity 0.5s;}
 @media(hover:none)and(pointer:coarse){#desktop-hint{display:block;}}
-@media(hover:none)and(pointer:coarse)and(orientation:landscape){#desktop-hint{display:none !important;}}
+#desktop-hint.hidden-hint{opacity:0 !important;pointer-events:none;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border-h);border-radius:2px;}
@@ -187,7 +207,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
 </head>
 <body>
 
-<header id="header">
+<header id="header" class="on-menu">
   <div id="header-left">
     <a href="../index.html" id="portal-btn" title="Back to THE GRID">⌂</a>
     <div id="game-logo">Forge <span>Alchemy Merge</span></div>
@@ -237,6 +257,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
       </div>
     </div>
     <button class="next-btn" onclick="goStep2()">Continue →</button>
+    <button onclick="openHow()" title="How to play" style="margin-top:10px;background:none;border:1px solid var(--border);color:var(--text-dim);width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--fire)';this.style.color='var(--fire)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">?</button>
     <a href="../index.html" class="portal-link">← The Grid</a>
   </div>
 </div>
@@ -255,8 +276,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
       <div class="opt-card selected" id="wc-both" onclick="setWin('both')">
         <div class="opt-card-icon">⚡</div>
         <div class="opt-card-body">
-          <div class="opt-card-title">Either · First Trigger (Recommended)</div>
-          <div class="opt-card-desc">Win if you reach The Forge. Lose if the grid seals.</div>
+          <div class="opt-card-title">Either · First Trigger</div>
+          <div class="opt-card-desc">Win if you reach The Forge. Lose if the grid seals. Recommended.</div>
         </div>
         <div class="opt-card-check">✓</div>
       </div>
@@ -278,6 +299,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
       </div>
     </div>
     <button class="next-btn" onclick="startGame()">⚗ Begin Transmutation</button>
+  <button onclick="openHow()" title="How to play" style="margin-top:10px;background:none;border:1px solid var(--border);color:var(--text-dim);width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--fire)';this.style.color='var(--fire)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">?</button>
   </div>
 </div>
 
@@ -299,52 +321,68 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
   <div id="grid-wrap"><div id="grid"></div></div>
 </div>
 
+<!-- ABANDON MODAL -->
+<div class="modal-backdrop" id="abandon-modal">
+  <div class="modal-card">
+    <div style="padding:26px 26px 22px;text-align:center;">
+      <div class="abandon-title">Abandon Run?</div>
+      <div class="abandon-sub">Your progress will be lost and you'll return to the setup screen.</div>
+      <div class="abandon-btns">
+        <button class="abandon-btn cancel" onclick="closeAbandon()">Keep Going</button>
+        <button class="abandon-btn confirm" onclick="confirmAbandon()">Abandon</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- HOW TO PLAY -->
-<div id="how-modal">
-  <div class="how-card">
-    <div class="how-header">
-      <div class="how-title">How to Play</div>
-      <button class="how-close" onclick="closeHow()">✕</button>
-    </div>
-    <div class="how-steps">
-      <div class="how-step">
-        <div class="how-num">1</div>
-        <div>
-          <div class="how-step-title">Tap a tile</div>
-          <div class="how-step-desc">Select any tile on the grid — it highlights with an orange ring.</div>
+<div class="modal-backdrop" id="how-modal">
+  <div class="modal-card">
+    <div style="padding:24px 24px 20px;">
+      <div class="how-header">
+        <div class="how-title">How to Play</div>
+        <button class="how-close" onclick="closeHow()">✕</button>
+      </div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div>
+            <div class="how-step-title">Tap a tile</div>
+            <div class="how-step-desc">Select any tile on the grid — it highlights with an orange ring.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div>
+            <div class="how-step-title">Tap an adjacent match</div>
+            <div class="how-step-desc">Tap a neighbour (up, down, left, or right) of the same tier to merge them into the next tier up. Only adjacent tiles can merge.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div>
+            <div class="how-step-title">New tiles spawn</div>
+            <div class="how-step-desc">After each merge, 1–2 new low-tier tiles appear near existing ones. The grid fills gradually.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div>
+            <div class="how-step-title">Reach The Forge</div>
+            <div class="how-step-desc">Merge through all 8 tiers before the grid seals with no moves left.</div>
+          </div>
         </div>
       </div>
-      <div class="how-step">
-        <div class="how-num">2</div>
-        <div>
-          <div class="how-step-title">Tap an adjacent match</div>
-          <div class="how-step-desc">Tap a neighbour (up, down, left, or right) of the same tier to merge them into the next tier up.</div>
-        </div>
+      <div class="how-tiers">
+        <span class="htc" style="background:var(--t1-bg);color:var(--t1-c)">🪨 Ash</span>
+        <span class="htc" style="background:var(--t2-bg);color:var(--t2-c)">🔥 Ember</span>
+        <span class="htc" style="background:var(--t3-bg);color:var(--t3-c)">✨ Spark</span>
+        <span class="htc" style="background:var(--t4-bg);color:var(--t4-c)">🌟 Flame</span>
+        <span class="htc" style="background:var(--t5-bg);color:var(--t5-c)">💥 Blaze</span>
+        <span class="htc" style="background:var(--t6-bg);color:var(--t6-c)">🌋 Inferno</span>
+        <span class="htc" style="background:var(--t7-bg);color:var(--t7-c)">⚡ Plasma</span>
+        <span class="htc" style="background:linear-gradient(135deg,#e0b818,#c88c08);color:#fff">♾ The Forge</span>
       </div>
-      <div class="how-step">
-        <div class="how-num">3</div>
-        <div>
-          <div class="how-step-title">New tiles spawn</div>
-          <div class="how-step-desc">After each merge, 1–2 new low-tier tiles appear. The grid fills gradually.</div>
-        </div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">4</div>
-        <div>
-          <div class="how-step-title">Reach The Forge</div>
-          <div class="how-step-desc">Merge through all 8 tiers before the grid seals with no moves left.</div>
-        </div>
-      </div>
-    </div>
-    <div class="how-tiers">
-      <span class="htc" style="background:var(--t1-bg);color:var(--t1-c)">🪨 Ash</span>
-      <span class="htc" style="background:var(--t2-bg);color:var(--t2-c)">🔥 Ember</span>
-      <span class="htc" style="background:var(--t3-bg);color:var(--t3-c)">✨ Spark</span>
-      <span class="htc" style="background:var(--t4-bg);color:var(--t4-c)">🌟 Flame</span>
-      <span class="htc" style="background:var(--t5-bg);color:var(--t5-c)">💥 Blaze</span>
-      <span class="htc" style="background:var(--t6-bg);color:var(--t6-c)">🌋 Inferno</span>
-      <span class="htc" style="background:var(--t7-bg);color:var(--t7-c)">⚡ Plasma</span>
-      <span class="htc" style="background:linear-gradient(135deg,#e8c020,#d4960a);color:#fff">♾ The Forge</span>
     </div>
   </div>
 </div>
@@ -372,7 +410,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
   </div>
 </div>
 
-<div id="desktop-hint">• Best on Desktop · Mobile: Rotate Landscape •</div>
+<div id="desktop-hint">• Best experienced on desktop •</div>
 
 <script>
 const SUPABASE_URL='https://kepbwovgwvsfycmvsztu.supabase.co';
@@ -395,59 +433,88 @@ let board=[],selected=null;
 let score=0,merges=0,highestTier=1;
 let gameOver=false,soundOn=false,tileSize=88;
 
+// ── AUDIO ──
 const actx=new(window.AudioContext||window.webkitAudioContext)();
+document.addEventListener("click",()=>{try{if(actx.state==="suspended")actx.resume();}catch(e){}},{once:true});
 function beep(freq,dur,type='sine',vol=0.09,delay=0){
   if(!soundOn)return;
   try{const o=actx.createOscillator(),g=actx.createGain();o.connect(g);g.connect(actx.destination);o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,actx.currentTime+delay);g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+delay+dur);o.start(actx.currentTime+delay);o.stop(actx.currentTime+delay+dur);}catch(e){}
 }
-function sndSelect(){beep(520,0.07);}
+function sndSelect(){beep(480,0.07);}
+function sndNoMatch(){beep(200,0.12,'sawtooth',0.06);}
 function sndMerge(t){[t*70+180,t*70+280].forEach((f,i)=>beep(f,0.13,'sine',0.11,i*0.06));}
 function sndForge(){[500,700,900,1100].forEach((f,i)=>beep(f,0.16,'sine',0.15,i*0.08));}
 function sndFail(){beep(180,0.18,'sawtooth',0.07);}
 
 document.getElementById('sound-btn').onclick=()=>{soundOn=!soundOn;document.getElementById('sound-btn').textContent=soundOn?'🔊':'🔇';};
 
+// ── SETUP ──
 function setGrid(n){
-  gridSize=n;
-  [4,5,6].forEach(x=>{
-    const el=document.getElementById('g'+x);
-    el.classList.toggle('selected',x===n);
-    el.querySelector('.opt-card-check').textContent=x===n?'✓':'';
-  });
+  gridSize=n;[4,5,6].forEach(x=>{const el=document.getElementById('g'+x);el.classList.toggle('selected',x===n);el.querySelector('.opt-card-check').textContent=x===n?'✓':'';});
 }
 function setWin(w){
-  winCond=w;
-  ['both','top','fill'].forEach(x=>{
-    const el=document.getElementById('wc-'+x);
-    el.classList.toggle('selected',x===w);
-    el.querySelector('.opt-card-check').textContent=x===w?'✓':'';
-  });
+  winCond=w;['both','top','fill'].forEach(x=>{const el=document.getElementById('wc-'+x);el.classList.toggle('selected',x===w);el.querySelector('.opt-card-check').textContent=x===w?'✓':'';});
 }
 function goStep1(){document.getElementById('screen-win').classList.add('hidden');document.getElementById('screen-grid').classList.remove('hidden');}
 function goStep2(){document.getElementById('screen-grid').classList.add('hidden');document.getElementById('screen-win').classList.remove('hidden');}
-function openHow(){document.getElementById('how-modal').classList.add('open');}
-function closeHow(){document.getElementById('how-modal').classList.remove('open');}
-document.getElementById('how-modal').addEventListener('click',e=>{if(e.target===document.getElementById('how-modal'))closeHow();});
 
+// ── HEADER STATE ──
+function setHeaderState(inGame){document.getElementById('header').classList.toggle('on-menu',!inGame);}
+
+// ── MODALS ──
+function openAbandon(){document.getElementById('abandon-modal').classList.add('show');}
+function closeAbandon(){document.getElementById('abandon-modal').classList.remove('show');}
+function confirmAbandon(){document.getElementById('abandon-modal').classList.remove('show');goMenu();}
+function openHow(){document.getElementById('how-modal').classList.add('show');}
+function closeHow(){document.getElementById('how-modal').classList.remove('show');}
+['abandon-modal','how-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id)){document.getElementById(id).classList.remove('show');}});
+});
+
+// ── GAME INIT ──
 function startGame(){
   score=0;merges=0;highestTier=1;gameOver=false;selected=null;
   board=Array.from({length:gridSize},()=>Array(gridSize).fill(0));
   const maxW=Math.min(window.innerWidth-48,520);
   tileSize=Math.floor((maxW-(gridSize-1)*6)/gridSize);
   tileSize=Math.max(58,Math.min(tileSize,96));
-  spawnTile();spawnTile();spawnTile();
+  // spawn 3 tiles ensuring at least one adjacent pair possible
+  spawnTile();spawnTile();spawnAdjacentTile(1);
   buildGrid();updateHUD();updatePips();
   ['screen-grid','screen-win'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   document.getElementById('game-screen').classList.remove('hidden');
   document.getElementById('result-overlay').classList.remove('show');
+  setHeaderState(true);
   pingActive('FORGE');
+}
+
+// Spawn near existing tile to ensure adjacency opportunities
+function spawnAdjacentTile(tier){
+  const occupied=[];
+  for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++)if(board[r][c])occupied.push([r,c]);
+  const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+  const candidates=[];
+  for(const[or,oc]of occupied){
+    for(const[dr,dc]of dirs){
+      const nr=or+dr,nc=oc+dc;
+      if(nr>=0&&nr<gridSize&&nc>=0&&nc<gridSize&&!board[nr][nc])candidates.push([nr,nc]);
+    }
+  }
+  if(candidates.length){
+    const[r,c]=candidates[Math.floor(Math.random()*candidates.length)];
+    board[r][c]=tier||1;
+  }else{spawnTile();}
 }
 
 function spawnTile(animate=false){
   const empty=[];
   for(let r=0;r<gridSize;r++)for(let c=0;c<gridSize;c++)if(!board[r][c])empty.push([r,c]);
   if(!empty.length)return false;
-  const[r,c]=empty[Math.floor(Math.random()*empty.length)];
+  // prefer cells adjacent to existing tiles
+  const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+  const adjacent=empty.filter(([r,c])=>dirs.some(([dr,dc])=>{const nr=r+dr,nc=c+dc;return nr>=0&&nr<gridSize&&nc>=0&&nc<gridSize&&board[nr][nc]>0;}));
+  const pool=adjacent.length?adjacent:empty;
+  const[r,c]=pool[Math.floor(Math.random()*pool.length)];
   board[r][c]=Math.random()<0.82?1:2;
   if(animate){const el=getTileEl(r,c);if(el){renderTile(el,r,c);el.classList.add('spawn-anim');setTimeout(()=>el.classList.remove('spawn-anim'),300);}}
   return true;
@@ -466,26 +533,39 @@ function buildGrid(){
     renderTile(el,r,c);g.appendChild(el);
   }
 }
-
 function getTileEl(r,c){return document.querySelector(`.tile[data-r="${r}"][data-c="${c}"]`);}
-
 function renderTile(el,r,c){
-  const t=board[r][c];
-  el.className='tile';el.style.width=el.style.height=tileSize+'px';el.innerHTML='';
+  const t=board[r][c];el.className='tile';el.style.width=el.style.height=tileSize+'px';el.innerHTML='';
   if(!t){el.classList.add('empty');return;}
   const tier=TIERS[t];el.classList.add(tier.cls);
   const iSize=Math.round(tileSize*0.36),nSize=Math.round(tileSize*0.13);
   el.innerHTML=`<span class="tile-icon" style="font-size:${iSize}px">${tier.icon}</span><span class="tile-name" style="font-size:${nSize}px">${tier.name}</span>`;
 }
 
+// ── INPUT ──
 function onTileClick(r,c){
   if(gameOver)return;
   if(!board[r][c]){clearSelection();return;}
-  if(selected===null){selected=[r,c];getTileEl(r,c)?.classList.add('selected');sndSelect();return;}
+  if(selected===null){
+    selected=[r,c];getTileEl(r,c)?.classList.add('selected');sndSelect();return;
+  }
   const[sr,sc]=selected;
   if(sr===r&&sc===c){clearSelection();return;}
   const adj=Math.abs(sr-r)+Math.abs(sc-c)===1;
-  if(!adj||board[sr][sc]!==board[r][c]){clearSelection();selected=[r,c];getTileEl(r,c)?.classList.add('selected');sndSelect();return;}
+  const sameT=board[sr][sc]===board[r][c];
+  if(!adj){
+    // clicked non-adjacent tile: move selection
+    clearSelection();selected=[r,c];getTileEl(r,c)?.classList.add('selected');sndSelect();return;
+  }
+  if(!sameT){
+    // adjacent but different tier: shake and keep selection on first tile
+    const el=getTileEl(sr,sc);
+    el?.classList.remove('no-match');
+    requestAnimationFrame(()=>el?.classList.add('no-match'));
+    setTimeout(()=>el?.classList.remove('no-match'),350);
+    sndNoMatch();
+    return;
+  }
   doMerge(sr,sc,r,c);
 }
 
@@ -511,7 +591,6 @@ function updateHUD(){
   const best=localStorage.getItem(`forge_best_${gridSize}`);
   document.getElementById('hud-best').textContent=best?Number(best).toLocaleString():'—';
 }
-
 function updatePips(){
   for(let i=1;i<=8;i++)document.getElementById('pip'+i)?.classList.toggle('unlocked',i<=highestTier);
   const tl=document.getElementById('tier-label');if(tl)tl.textContent=TIERS[highestTier]?.name||'';
@@ -537,7 +616,6 @@ function endGame(win,reason){
   pingActive('');
   setTimeout(()=>showResult(win,reason),350);
 }
-
 function showResult(win,reason){
   const icons={forge:'♾',survived:'🏆',full:'💀'};
   const titles={forge:'The Forge',survived:'Survived',full:'Grid Sealed'};
@@ -564,15 +642,31 @@ async function submitScoreHandler(){
 }
 
 function restartGame(){document.getElementById('result-overlay').classList.remove('show');startGame();}
-function goMenu(){document.getElementById('result-overlay').classList.remove('show');gameOver=true;document.getElementById('game-screen').classList.add('hidden');document.getElementById('screen-grid').classList.remove('hidden');pingActive('');}
-
-document.getElementById('menu-btn').onclick=()=>{if(!gameOver&&!confirm('Abandon this transmutation?'))return;goMenu();};
-
-function pingActive(val){
-  fetch(`${SUPABASE_URL}/rest/v1/meta?key=eq.active_game`,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({value:val})}).catch(()=>{});
+function goMenu(){
+  document.getElementById('result-overlay').classList.remove('show');
+  gameOver=true;
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('screen-grid').classList.remove('hidden');
+  setHeaderState(false);
+  pingActive('');
 }
 
-setTimeout(()=>{const h=document.getElementById('desktop-hint');h.style.opacity='1';setTimeout(()=>{h.style.opacity='0';},5000);},1500);
+document.getElementById('menu-btn').onclick=()=>{
+  if(!gameOver){openAbandon();return;}
+  goMenu();
+};
+
+function pingActive(val){fetch(`${SUPABASE_URL}/rest/v1/meta?key=eq.active_game`,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({value:val})}).catch(()=>{});}
+
+// ── DESKTOP HINT ──
+setTimeout(()=>{
+  const h=document.getElementById('desktop-hint');
+  h.style.opacity='1';
+  const fade=()=>h.classList.add('hidden-hint');
+  document.addEventListener('click',fade,{once:true});
+  document.addEventListener('touchstart',fade,{once:true});
+  setTimeout(()=>h.classList.add('hidden-hint'),8000);
+},1500);
 </script>
 </body>
 </html>
