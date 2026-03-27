@@ -326,6 +326,13 @@ body {
 
 #screen-game { justify-content: flex-start; padding: 0; min-height: 100vh; min-height: 100dvh; overflow-y: auto; }
 
+.portal-home-btn {
+  font-size: 17px; color: var(--text-dim); text-decoration: none;
+  opacity: 0.65; transition: opacity 0.2s, background 0.2s; padding: 2px 6px;
+  flex-shrink: 0; line-height: 1; border-radius: 6px;
+}
+.portal-home-btn:hover { opacity: 1; background: rgba(255,255,255,0.07); }
+
 .game-header {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
   padding: 14px 24px; border-bottom: 1px solid rgba(24,240,255,0.14);
@@ -1006,6 +1013,7 @@ body {
   <!-- ══ GAME SCREEN ══ -->
   <div class="screen" id="screen-game">
     <div class="game-header">
+      <a href="../index.html" class="portal-home-btn" title="Back to The Grid">⌂</a>
       <div class="game-logo">VOID21</div>
       <div class="header-center">
         <div class="round-badge">ROUND <span id="round-num">1</span></div>
@@ -2466,11 +2474,15 @@ document.getElementById('eg-new-game').onclick = () => {
 };
 document.getElementById('eg-view-board').onclick = () => { document.getElementById('endgame-overlay').classList.remove('show'); };
 document.getElementById('eg-menu').onclick = () => {
-  window.location.href = '../index.html';
+  document.getElementById('endgame-overlay').classList.remove('show');
+  document.getElementById('round-overlay').classList.remove('show');
+  showScreen('screen-mode');
 };
 
 document.getElementById('btn-back').onclick = () => {
-  window.location.href = '../index.html';
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('round-overlay').classList.remove('show');
+  showScreen('screen-mode');
 };
 
 document.getElementById('overlay-next').onclick = startNextRound;
