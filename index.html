@@ -339,7 +339,7 @@
         .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
         /* ── GRID ── */
-        .grid { max-width: 1200px; margin: 0 auto; padding: 0 52px 72px; display: grid; grid-template-columns: repeat(2,1fr); gap: 11px; position: relative; z-index: 2; }
+        .grid { max-width: 1200px; margin: 0 auto; padding: 0 52px 72px; display: grid; grid-template-columns: repeat(3,1fr); gap: 11px; position: relative; z-index: 2; }
 
         /* ── CARD ── */
         .card {
@@ -351,8 +351,16 @@
         }
         .card:nth-child(1){animation-delay:0.48s} .card:nth-child(2){animation-delay:0.56s}
         .card:nth-child(3){animation-delay:0.64s} .card:nth-child(4){animation-delay:0.72s}
+        .card:nth-child(5){animation-delay:0.80s} .card:nth-child(6){animation-delay:0.88s}
         .card:not(.locked):hover { background: var(--card-h); border-color: var(--border-h); }
         [data-theme="light"] .card:not(.locked):hover { box-shadow: 0 18px 44px rgba(0,0,0,0.1); }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: repeat(2,1fr); }
+        }
+        @media (max-width: 700px) {
+            .grid { grid-template-columns: 1fr; padding: 0 24px 68px; }
+        }
 
         .card-num { position: absolute; bottom: -14px; right: 18px; font-family: 'Bebas Neue', sans-serif; font-size: 7rem; color: rgba(255,255,255,0.028); pointer-events: none; user-select: none; line-height: 1; transition: color 0.3s; }
         [data-theme="light"] .card-num { color: rgba(0,0,0,0.035); }
@@ -496,9 +504,85 @@
             .about-wrap, .scroll-hint { padding-left: 24px; padding-right: 24px; }
         }
 
-        /* ── FOOTER ── */
+        /* ── NAV LINKS ── */
+        .nav-links {
+            display: flex; align-items: center; gap: 32px;
+            position: absolute; left: 50%; transform: translateX(-50%);
+        }
+        .nav-link {
+            font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase;
+            color: var(--mid); text-decoration: none; cursor: none;
+            transition: color 0.2s; position: relative; padding-bottom: 2px;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0;
+            width: 0; height: 1px; background: var(--text);
+            transition: width 0.25s ease;
+        }
+        .nav-link:hover { color: var(--text); }
+        .nav-link:hover::after { width: 100%; }
+        @media (max-width: 700px) { .nav-links { display: none; } }
+
+        /* ── LOCKED CARD — more readable ── */
+        .card.locked .card-name, .card.locked .card-icon { color: #555; }
+        [data-theme="light"] .card.locked .card-name,
+        [data-theme="light"] .card.locked .card-icon { color: #aaa; }
+        .card.locked .card-genre { color: #484848; }
+        [data-theme="light"] .card.locked .card-genre { color: #bbb; }
+        .card.locked .card-preview { color: #444; }
+        [data-theme="light"] .card.locked .card-preview { color: #c0bdb8; }
+        .card.locked .cta-text { color: #484848; }
+        [data-theme="light"] .card.locked .cta-text { color: #bbb; }
+        .card.locked .card-status { color: #484848; }
+        [data-theme="light"] .card.locked .card-status { color: #bbb; }
         footer { max-width: 1200px; margin: 0 auto; padding: 24px 52px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
         footer p { font-size: 0.57rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid); }
+
+        /* ── ABOUT STACK ── */
+        .about-stack { margin-top: 52px; padding-top: 32px; border-top: 1px solid var(--border); }
+        .about-stack-label { font-size: 0.57rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--mid); margin-bottom: 20px; }
+        .about-stack-items { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        .about-stack-item { padding: 18px 20px; background: var(--card); transition: background 0.2s; }
+        .about-stack-item:hover { background: var(--card-h); }
+        .asi-name { font-size: 0.72rem; font-weight: 500; color: var(--text); letter-spacing: 0.04em; margin-bottom: 4px; }
+        .asi-desc { font-size: 0.68rem; color: var(--mid); line-height: 1.5; }
+
+        /* ── ABOUT PRINCIPLES ── */
+        .about-principles { margin-top: 32px; display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; padding-bottom: 32px; }
+        .about-principle { display: flex; gap: 16px; align-items: flex-start; }
+        .ap-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--dim); line-height: 1; flex-shrink: 0; margin-top: 2px; }
+        .ap-title { font-size: 0.75rem; font-weight: 500; color: var(--text); letter-spacing: 0.04em; margin-bottom: 5px; }
+        .ap-desc { font-size: 0.7rem; color: var(--mid); line-height: 1.6; }
+
+        /* ── MOBILE BOTTOM NAV ── */
+        #mobile-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
+            background: rgba(22,22,22,0.96); backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border);
+            padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+            justify-content: space-around; align-items: center;
+        }
+        [data-theme="light"] #mobile-nav { background: rgba(239,236,231,0.96); }
+        .mob-nav-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: none; border: none; padding: 4px 20px; color: var(--mid);
+            transition: color 0.2s; cursor: pointer;
+        }
+        .mob-nav-btn.active { color: var(--text); }
+        .mob-nav-icon { font-size: 15px; line-height: 1; }
+        .mob-nav-label { font-family: 'Outfit', sans-serif; font-size: 0.46rem; letter-spacing: 0.18em; text-transform: uppercase; }
+
+        @media (max-width: 900px) {
+            .about-stack-items { grid-template-columns: repeat(2,1fr); }
+            .about-principles { grid-template-columns: 1fr; gap: 16px; }
+        }
+        @media (max-width: 700px) {
+            .about-stack-items { grid-template-columns: 1fr; }
+            .about-inner { grid-template-columns: 1fr; gap: 32px; }
+            .about-wrap { padding-left: 24px; padding-right: 24px; }
+            #mobile-nav { display: flex; }
+            body { padding-bottom: 64px; }
+        }
 
         @media (max-width: 700px) {
             nav { padding: 22px 24px; }
@@ -667,6 +751,11 @@
             <span class="logo-main"><span class="txt" id="logoTxt">THE GRID</span></span>
         </a>
         <div id="progress-bar"></div>
+        <div class="nav-links">
+            <a class="nav-link" href="#section-games">Games</a>
+            <a class="nav-link" href="#section-leaderboard">Leaderboard</a>
+            <a class="nav-link" href="#section-about">About</a>
+        </div>
         <div class="nav-right">
             <div class="now-pill" id="nowPill">
                 <div class="now-dot"></div>
@@ -731,7 +820,7 @@
         </div>
     </div>
 
-    <div class="sec-label"><p>Game Library</p></div>
+    <div class="sec-label" id="section-games"><p>Game Library</p></div>
 
     <div class="grid">
         <a href="Realm-Chess/" class="card">
@@ -792,14 +881,33 @@
                 <div class="cta-arr"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
             </div>
         </div>
+        <div class="card locked">
+            <div class="card-num">05</div>
+            <div class="card-status"><div class="dot off"></div>In Development</div>
+            <div class="card-icon">🎲</div>
+            <h2 class="card-name">Classified</h2>
+            <p class="card-genre">Dice · Press Your Luck</p>
+            <p class="card-preview">A push-your-luck dice game built around risk and restraint. Roll, hold, or fold — the numbers decide everything.</p>
+            <div class="card-cta">
+                <span class="cta-text">Under Construction</span>
+                <div class="cta-arr"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+            </div>
+        </div>
+        <div class="card locked">
+            <div class="card-num">06</div>
+            <div class="card-status"><div class="dot off"></div>In Development</div>
+            <div class="card-icon">🕹</div>
+            <h2 class="card-name">Classified</h2>
+            <p class="card-genre">Arcade · Reflex</p>
+            <p class="card-preview">Fast, pattern-driven, unforgiving. An arcade reflex game that strips everything back to pure reaction speed.</p>
+            <div class="card-cta">
+                <span class="cta-text">Under Construction</span>
+                <div class="cta-arr"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+            </div>
+        </div>
     </div>
 
-    <div class="scroll-hint" id="hint1">
-        <span>Global Leaderboard</span>
-        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-
-    <div class="lb-wrap">
+    <div class="lb-wrap" id="section-leaderboard">
         <div class="lb-head"><p>Global Leaderboard</p></div>
         <div class="lb-tabs">
             <button class="lb-tab active" data-g="all">All Games</button>
@@ -811,12 +919,7 @@
         </div>
     </div>
 
-    <div class="scroll-hint" id="hint2">
-        <span>About The Grid</span>
-        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-
-    <div class="about-wrap">
+    <div class="about-wrap" id="section-about">
         <div class="about-inner">
             <div class="about-left">
                 <p class="about-label">Mission</p>
@@ -833,12 +936,82 @@
                 </div>
             </div>
         </div>
+
+        <div class="about-stack">
+            <div class="about-stack-label">Built with</div>
+            <div class="about-stack-items">
+                <div class="about-stack-item">
+                    <div class="asi-name">HTML · CSS · JS</div>
+                    <div class="asi-desc">No frameworks. Pure browser-native code.</div>
+                </div>
+                <div class="about-stack-item">
+                    <div class="asi-name">Web Audio API</div>
+                    <div class="asi-desc">Synthesized sounds — no audio files.</div>
+                </div>
+                <div class="about-stack-item">
+                    <div class="asi-name">Canvas API</div>
+                    <div class="asi-desc">Particle effects and animations drawn in-browser.</div>
+                </div>
+                <div class="about-stack-item">
+                    <div class="asi-name">Supabase</div>
+                    <div class="asi-desc">Global leaderboard and session tracking.</div>
+                </div>
+                <div class="about-stack-item">
+                    <div class="asi-name">GitHub Pages</div>
+                    <div class="asi-desc">Hosted and deployed directly from the repo.</div>
+                </div>
+                <div class="about-stack-item">
+                    <div class="asi-name">Google Fonts</div>
+                    <div class="asi-desc">Bebas Neue, Outfit, Orbitron, Cinzel.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-principles">
+            <div class="about-principle">
+                <div class="ap-num">01</div>
+                <div class="ap-text">
+                    <div class="ap-title">No downloads, no installs</div>
+                    <div class="ap-desc">Every game runs instantly in your browser. Open a link, start playing.</div>
+                </div>
+            </div>
+            <div class="about-principle">
+                <div class="ap-num">02</div>
+                <div class="ap-text">
+                    <div class="ap-title">Local multiplayer first</div>
+                    <div class="ap-desc">Pass-and-play on one screen. No accounts, no lobbies, no lag.</div>
+                </div>
+            </div>
+            <div class="about-principle">
+                <div class="ap-num">03</div>
+                <div class="ap-text">
+                    <div class="ap-title">Design matters</div>
+                    <div class="ap-desc">Each game gets its own visual identity — no shared templates, no generic UI.</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer>
         <p>© 2025 BTSAI</p>
         <p>The Grid</p>
     </footer>
+
+    <!-- Mobile Bottom Nav -->
+    <div id="mobile-nav">
+        <button class="mob-nav-btn active" data-target="#section-games" onclick="mobileNavTo(this,'#section-games')">
+            <span class="mob-nav-icon">🎮</span>
+            <span class="mob-nav-label">Games</span>
+        </button>
+        <button class="mob-nav-btn" data-target="#section-leaderboard" onclick="mobileNavTo(this,'#section-leaderboard')">
+            <span class="mob-nav-icon">🏆</span>
+            <span class="mob-nav-label">Leaderboard</span>
+        </button>
+        <button class="mob-nav-btn" data-target="#section-about" onclick="mobileNavTo(this,'#section-about')">
+            <span class="mob-nav-icon">◈</span>
+            <span class="mob-nav-label">About</span>
+        </button>
+    </div>
 
     <!-- Changelog Modal -->
     <div id="changelog-modal">
@@ -939,6 +1112,35 @@ document.getElementById('expand-2').addEventListener('click', function() {
     const open = b.classList.toggle('open');
     this.classList.toggle('open', open);
 });
+
+// ── NAV SMOOTH SCROLL ──
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+
+function mobileNavTo(btn, selector) {
+    document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const target = document.querySelector(selector);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Update mobile nav active state on scroll
+const mobSections = ['#section-games','#section-leaderboard','#section-about'];
+window.addEventListener('scroll', () => {
+    let current = 0;
+    mobSections.forEach((sel, i) => {
+        const el = document.querySelector(sel);
+        if (el && el.getBoundingClientRect().top < window.innerHeight * 0.5) current = i;
+    });
+    document.querySelectorAll('.mob-nav-btn').forEach((b, i) => {
+        b.classList.toggle('active', i === current);
+    });
+}, { passive: true });
 
 // ── SPLASH ──
 const splash = document.getElementById('splash');
@@ -1180,9 +1382,11 @@ document.getElementById('themeTog').addEventListener('click', () => {
 
 // ── TYPING ──
 const titleEl = document.getElementById('heroTitle');
-const words = ['THE GRID', 'CHESS', 'BLACKJACK', 'THE GRID'];
-let wi=0, ci=0, del=false;
-function type(){
+// sequence: THE GRID → CHESS → BLACKJACK → loop back to THE GRID forever
+const words = ['THE GRID', 'CHESS', 'BLACKJACK'];
+let wi = 0, ci = 0, del = false, firstCycle = true;
+
+function type() {
     const w = words[wi];
     del ? ci-- : ci++;
     const cur = w.slice(0, ci);
@@ -1190,12 +1394,27 @@ function type(){
     titleEl.innerHTML = cur.slice(0, splitAt) +
         (cur.slice(splitAt) ? `<span class="ol">${cur.slice(splitAt)}</span>` : '') +
         '<span class="tcursor"></span>';
+
     if (!del && ci === w.length) {
-        if (wi === words.length - 1) return;
-        setTimeout(() => { del=true; type(); }, 2500); return;
+        const isGrid = wi === 0;
+        // THE GRID holds ~70% of the time; others ~30% split between them
+        // At normal speed: grid holds 4000ms first time, 7000ms after; others hold 1800ms
+        const holdMs = isGrid
+            ? (firstCycle ? 4000 : 7000)
+            : 1800;
+        setTimeout(() => { del = true; type(); }, holdMs);
+        return;
     }
-    if (del && ci === 0) { del=false; wi=(wi+1)%words.length; }
-    setTimeout(type, del ? 52 : 96);
+    if (del && ci === 0) {
+        del = false;
+        wi = (wi + 1) % words.length;
+        // finished one full loop
+        if (wi === 0) firstCycle = false;
+    }
+    // after first cycle, type a bit slower for a calmer feel
+    const typeSpeed = firstCycle ? 96 : 110;
+    const delSpeed  = firstCycle ? 52  : 62;
+    setTimeout(type, del ? delSpeed : typeSpeed);
 }
 setTimeout(type, 2700);
 
