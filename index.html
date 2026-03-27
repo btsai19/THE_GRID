@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE GRID</title>
+    <title>THE GRID — BTSAI</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -610,6 +610,113 @@
             .rg { display: none; }
         }
 
+
+        /* ── LIGHT MODE FIXES ── */
+        [data-theme="light"] .card-num { color: rgba(0,0,0,0.055); }
+        [data-theme="light"] .card:hover .card-num { color: rgba(0,0,0,0.1); }
+        [data-theme="light"] .card:not(.locked):hover { box-shadow: 0 18px 44px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.08); }
+        [data-theme="light"] .hero-title { color: #141414; }
+        [data-theme="light"] .hero-title .ol { -webkit-text-stroke: 2.5px rgba(20,20,20,0.2); }
+        [data-theme="light"] .stat-num { color: #bbb; }
+        [data-theme="light"] .stat-num.loaded { color: #141414; }
+        [data-theme="light"] .mq-item { color: #888; }
+        [data-theme="light"] .mq-item::after { color: #ccc; }
+        [data-theme="light"] .lb-row { border-bottom-color: rgba(0,0,0,0.07); }
+        [data-theme="light"] .hrow { color: #888; background: #e6e2db; }
+        [data-theme="light"] .rk { color: #aaa; }
+        [data-theme="light"] .rk.top { color: #141414; }
+        [data-theme="light"] .rs { color: #141414; }
+        /* light mode glows — use darker amber for visibility */
+        [data-theme="light"] .update-pill { box-shadow: 0 0 16px rgba(180,130,0,0.3); }
+        [data-theme="light"] .update-pill:hover { box-shadow: 0 0 24px rgba(180,130,0,0.45); }
+        [data-theme="light"] .cl-new { background: rgba(180,130,0,0.06); }
+        [data-theme="light"] .cl-new::after { background: linear-gradient(180deg,transparent,#b88200,transparent); }
+        [data-theme="light"] .update-dot, [data-theme="light"] .ub-dot { box-shadow: 0 0 6px rgba(180,130,0,0.9); }
+        /* card hover: stronger pulse + shimmer in light */
+        [data-theme="light"] @keyframes edgePulse {
+            0%,100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 0 20px rgba(0,0,0,0.06); }
+            50%      { box-shadow: 0 0 0 1px rgba(0,0,0,0.2), 0 0 40px rgba(0,0,0,0.12); }
+        }
+        [data-theme="light"] .card-spotlight { background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(0,0,0,0.05) 0%, transparent 58%); }
+        [data-theme="light"] .card-shimmer { background: linear-gradient(105deg, transparent 35%, rgba(0,0,0,0.04) 50%, transparent 65%); background-size: 250% 100%; }
+
+        /* ── NEW / UPDATE BADGES ON CARDS ── */
+        .card-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.46rem; letter-spacing: 0.18em; text-transform: uppercase;
+            padding: 2px 8px; border-radius: 20px; font-weight: 500;
+            font-family: 'Outfit', sans-serif; margin-bottom: 10px;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        .card-badge.new-badge {
+            color: #4ade80; background: rgba(74,222,128,0.1);
+            border: 1px solid rgba(74,222,128,0.35);
+        }
+        .card-badge.update-badge {
+            color: #d4a947; background: rgba(212,169,71,0.1);
+            border: 1px solid rgba(212,169,71,0.35);
+        }
+        .card-badge-dot {
+            width: 4px; height: 4px; border-radius: 50%; background: currentColor;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        @keyframes badgePulse {
+            0%,100% { opacity: 1; } 50% { opacity: 0.55; }
+        }
+        [data-theme="light"] .card-badge.new-badge { color: #16a34a; background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.3); }
+        [data-theme="light"] .card-badge.update-badge { color: #b07d00; background: rgba(180,125,0,0.08); border-color: rgba(180,125,0,0.3); }
+
+        /* ── FEEDBACK SECTION ── */
+        .feedback-wrap {
+            max-width: 1200px; margin: 0 auto; padding: 0 52px 80px;
+            position: relative; z-index: 2;
+        }
+        .feedback-inner {
+            border-top: 1px solid var(--border); padding-top: 32px;
+            display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px;
+        }
+        .feedback-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem); line-height: 1;
+            letter-spacing: 0.03em; color: var(--text); margin-bottom: 10px;
+        }
+        .feedback-desc { font-size: 0.8rem; line-height: 1.8; color: var(--mid); }
+        .feedback-form { display: flex; flex-direction: column; gap: 12px; }
+        .feedback-row { display: flex; gap: 10px; }
+        .fb-input, .fb-select {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 6px; color: var(--text); font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem; padding: 10px 14px; outline: none;
+            transition: border-color 0.2s; width: 100%;
+        }
+        .fb-input:focus, .fb-select:focus { border-color: var(--border-h); }
+        .fb-input::placeholder { color: var(--mid); }
+        .fb-select { cursor: pointer; }
+        option { background: var(--surface); color: var(--text); }
+        .fb-textarea {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 6px; color: var(--text); font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem; padding: 10px 14px; outline: none;
+            transition: border-color 0.2s; width: 100%; resize: vertical; min-height: 80px;
+        }
+        .fb-textarea:focus { border-color: var(--border-h); }
+        .fb-textarea::placeholder { color: var(--mid); }
+        .fb-submit {
+            font-family: 'Outfit', sans-serif; font-size: 0.6rem; font-weight: 500;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            background: var(--card); color: var(--text);
+            border: 1px solid var(--border-h); border-radius: 6px;
+            padding: 10px 24px; cursor: none; transition: all 0.2s;
+            align-self: flex-start;
+        }
+        .fb-submit:hover { background: var(--card-h); }
+        .fb-submit:disabled { opacity: 0.4; cursor: default; }
+        .fb-msg { font-size: 0.64rem; color: var(--mid); letter-spacing: 0.06em; min-height: 18px; }
+        .fb-msg.success { color: var(--green); }
+        .fb-msg.error { color: #f87171; }
+        @media (max-width: 900px) { .feedback-inner { grid-template-columns: 1fr; gap: 24px; } }
+        @media (max-width: 700px) { .feedback-wrap { padding-left: 24px; padding-right: 24px; padding-bottom: 96px; } }
+
         @keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
 
         /* ── UPDATE NAV PILL ── */
@@ -898,6 +1005,7 @@
             <canvas class="card-particles"></canvas>
             <div class="card-num">02</div>
             <div class="card-status"><div class="dot"></div>Live</div>
+            <div class="card-badge update-badge"><div class="card-badge-dot"></div>Updated</div>
             <div class="card-icon">🃏</div>
             <h2 class="card-name">Cosmic Blackjack</h2>
             <p class="card-genre">Card · Chance</p>
@@ -915,6 +1023,7 @@
             <canvas class="card-particles"></canvas>
             <div class="card-num">03</div>
             <div class="card-status"><div class="dot"></div>Live</div>
+            <div class="card-badge new-badge"><div class="card-badge-dot"></div>New</div>
             <div class="card-icon">🌊</div>
             <h2 class="card-name">DEEP</h2>
             <p class="card-genre">Puzzle · Minesweeper</p>
@@ -932,6 +1041,7 @@
             <canvas class="card-particles"></canvas>
             <div class="card-num">04</div>
             <div class="card-status"><div class="dot"></div>Live</div>
+            <div class="card-badge new-badge"><div class="card-badge-dot"></div>New</div>
             <div class="card-icon">⚗</div>
             <h2 class="card-name">FORGE</h2>
             <p class="card-genre">Puzzle · Merge</p>
@@ -1049,6 +1159,35 @@
                 <div class="ap-text">
                     <div class="ap-title">Design matters</div>
                     <div class="ap-desc">Each game gets its own visual identity — no shared templates, no generic UI.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ── FEEDBACK SECTION ── -->
+    <div class="feedback-wrap" id="section-feedback">
+        <div class="feedback-inner">
+            <div>
+                <p class="about-label">Community</p>
+                <div class="feedback-title">Share your<br>thoughts.</div>
+                <p class="feedback-desc">Got a game idea? Found a bug? Want to suggest a feature or a whole new title? Drop it here — everything is read and considered.</p>
+            </div>
+            <div class="feedback-form">
+                <div class="feedback-row">
+                    <input class="fb-input" id="fb-name" type="text" placeholder="Your name (optional)" maxlength="32" autocomplete="off">
+                    <select class="fb-select" id="fb-type" style="flex-shrink:0;width:auto;min-width:140px;">
+                        <option value="idea">Game Idea</option>
+                        <option value="feedback">Feedback</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <textarea class="fb-textarea" id="fb-message" placeholder="What's on your mind?" maxlength="800"></textarea>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                    <div class="fb-msg" id="fb-msg"></div>
+                    <button class="fb-submit" id="fb-submit" onclick="submitFeedback()">Send →</button>
                 </div>
             </div>
         </div>
@@ -1741,6 +1880,36 @@ document.querySelectorAll('.lb-tab').forEach(tab => {
 });
 
 fetchLB();
+
+// ── FEEDBACK ──
+async function submitFeedback() {
+    const name = document.getElementById('fb-name').value.trim() || 'Anonymous';
+    const type = document.getElementById('fb-type').value;
+    const message = document.getElementById('fb-message').value.trim();
+    const btn = document.getElementById('fb-submit');
+    const msg = document.getElementById('fb-msg');
+    if (!message) { msg.textContent = 'Please write something first.'; msg.className = 'fb-msg error'; return; }
+    btn.disabled = true; msg.textContent = 'Sending…'; msg.className = 'fb-msg';
+    try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/feedback`, {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ name, type, message, date: new Date().toISOString().split('T')[0] })
+        });
+        if (res.ok) {
+            msg.textContent = '✓ Received — thanks for the input.';
+            msg.className = 'fb-msg success';
+            document.getElementById('fb-message').value = '';
+            document.getElementById('fb-name').value = '';
+        } else {
+            throw new Error('Failed');
+        }
+    } catch(e) {
+        msg.textContent = 'Something went wrong — try again.';
+        msg.className = 'fb-msg error';
+        btn.disabled = false;
+    }
+}
 
 
 </script>
