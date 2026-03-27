@@ -19,7 +19,7 @@
 .ob-text { font-family: 'Raleway', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(226,217,243,0.55); white-space: nowrap; }
 .ob-dot { width: 4px; height: 4px; border-radius: 50%; background: #A78BFA; opacity: 0.5; flex-shrink: 0; }
 @media (hover: none) and (pointer: coarse) { #orient-banner { display: flex; } }
-@media (orientation: landscape) and (max-width: 900px) { #orient-banner { display: none !important; } }
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) { #orient-banner { display: none !important; } }
 :root {
   --bg:#13101E; --lsq:#2A2444; --dsq:#1A1630;
   --border:#3A3060; --panel:#1C1830; --panelB:#221E38;
@@ -498,6 +498,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="mode-badge">Two Players</div>
     </div>
   </div>
+  <a href="../index.html" style="font-family:'Raleway',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);text-decoration:none;opacity:0.6;transition:opacity 0.2s;margin-top:-8px;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">← THE GRID</a>
 </div>
 
 <!-- ══ GAME ══ -->
