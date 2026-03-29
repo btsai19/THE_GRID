@@ -750,8 +750,143 @@ body {
 .eg-btn.ghost { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--text-dim); }
 .eg-btn.ghost:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
 
-/* scrollbar */
-::-webkit-scrollbar { width: 4px; }
+/* ── DECK SHOE VISUAL ── */
+.deck-shoe-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  position: relative; flex-shrink: 0;
+}
+.deck-shoe {
+  position: relative; width: 52px; height: 74px; cursor: default;
+}
+.deck-shoe-layer {
+  position: absolute; width: 48px; height: 70px; border-radius: 5px;
+  border: 1px solid rgba(24,240,255,0.25);
+  background: linear-gradient(135deg, #0d1f45, #080f20);
+}
+/* Stacked card back layers */
+.deck-shoe-layer:nth-child(1) { bottom: 0; left: 2px; }
+.deck-shoe-layer:nth-child(2) { bottom: 2px; left: 1px; background: linear-gradient(135deg, #0f2250, #0a1228); }
+.deck-shoe-layer:nth-child(3) { bottom: 4px; left: 0; background: linear-gradient(135deg, #112660, #0c1530); }
+.deck-shoe-layer:nth-child(4) { bottom: 6px; left: -1px; background: linear-gradient(135deg, #142a6e, #0e1838); }
+.deck-shoe-top {
+  position: absolute; bottom: 8px; left: -2px;
+  width: 48px; height: 70px; border-radius: 5px;
+  background: linear-gradient(135deg, #16316e 0%, #0e1f50 100%);
+  border: 1px solid rgba(24,240,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.deck-shoe-top::before {
+  content: ''; position: absolute; inset: 3px; border-radius: 3px;
+  border: 1px solid rgba(24,240,255,0.15);
+}
+.deck-shoe-top::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(24,240,255,0.04) 4px, rgba(24,240,255,0.04) 5px);
+}
+.deck-shoe-logo {
+  font-family: 'Orbitron', monospace; font-size: 7px; letter-spacing: 1px;
+  color: rgba(24,240,255,0.5); text-align: center; line-height: 1.3; z-index: 1;
+}
+.deck-shoe-count {
+  font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px;
+  color: var(--text-dim); text-align: center;
+}
+.deck-shoe-count.low { color: var(--red); animation: deckPulse 1s ease-in-out infinite; }
+@keyframes deckPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Cut card indicator */
+#cut-card-indicator {
+  display: none; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px;
+  background: rgba(255,92,122,0.1); border: 1px solid rgba(255,92,122,0.4);
+  font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 2px;
+  color: var(--red); text-transform: uppercase; animation: cutPulse 1.4s ease-in-out infinite;
+  position: absolute; top: -28px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+}
+#cut-card-indicator.show { display: flex; }
+.cut-card-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 6px var(--red); }
+@keyframes cutPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* ── SHUFFLE SCREEN ── */
+#shuffle-overlay {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(5,10,22,0.97); backdrop-filter: blur(20px);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  gap: 28px; padding: 32px;
+}
+#shuffle-overlay.show { display: flex; }
+.shuffle-eyebrow {
+  font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 5px;
+  color: var(--text-dim); text-transform: uppercase;
+}
+.shuffle-title {
+  font-family: 'Orbitron', monospace; font-size: clamp(22px,6vw,36px); font-weight: 900;
+  color: var(--red); letter-spacing: 4px; text-align: center;
+  text-shadow: 0 0 30px rgba(255,92,122,0.6);
+}
+.shuffle-sub {
+  font-family: 'Rajdhani', sans-serif; font-size: 14px; letter-spacing: 2px;
+  color: var(--text-dim); text-align: center;
+}
+
+/* Card fan */
+.shuffle-fan {
+  position: relative; width: 320px; height: 130px; cursor: pointer;
+}
+.shuffle-fan-card {
+  position: absolute; width: 52px; height: 76px; border-radius: 6px;
+  background: linear-gradient(135deg, #16316e, #0e1f50);
+  border: 1px solid rgba(24,240,255,0.3);
+  transform-origin: bottom center;
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  overflow: hidden; bottom: 0;
+}
+.shuffle-fan-card::before {
+  content: ''; position: absolute; inset: 3px; border-radius: 3px;
+  border: 1px solid rgba(24,240,255,0.12);
+}
+.shuffle-fan-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(24,240,255,0.04) 4px, rgba(24,240,255,0.04) 5px);
+}
+.shuffle-fan-card.cut-point {
+  border-color: var(--red) !important;
+  box-shadow: 0 0 16px rgba(255,92,122,0.6) !important;
+}
+
+/* Cut instruction */
+.shuffle-cut-label {
+  font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 3px;
+  color: var(--cyan); text-transform: uppercase; text-align: center;
+  animation: cutPulse 1.2s ease-in-out infinite;
+}
+
+/* Riffle animation */
+.shuffle-riffle-wrap {
+  display: none; flex-direction: row; align-items: flex-end; justify-content: center;
+  gap: 16px; height: 130px;
+}
+.riffle-half {
+  display: flex; flex-direction: column; gap: -4px; position: relative;
+}
+.riffle-card {
+  width: 52px; height: 10px; border-radius: 3px;
+  background: linear-gradient(135deg, #16316e, #0e1f50);
+  border: 1px solid rgba(24,240,255,0.25);
+  transition: all 0.05s;
+}
+
+/* Shuffle complete */
+.shuffle-done-btn {
+  padding: 12px 36px; border-radius: 10px; border: none; cursor: pointer;
+  font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  background: linear-gradient(135deg, var(--cyan), #6c63ff);
+  color: var(--bg); box-shadow: var(--cyan-glow-sm);
+  transition: all 0.2s; display: none; text-transform: uppercase;
+}
+.shuffle-done-btn:hover { box-shadow: var(--cyan-glow); transform: translateY(-1px); }
+.shuffle-done-btn.show { display: block; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.2); border-radius: 2px; }
 
@@ -1082,8 +1217,30 @@ body {
       <div class="scoreboard" id="scoreboard"></div>
       <div class="dealer-zone">
         <div class="zone-label">Dealer</div>
-        <div class="hand-display" id="dealer-hand"></div>
-        <div class="score-bubble" id="dealer-score">?</div>
+        <div style="display:flex;align-items:flex-end;gap:20px;justify-content:center;position:relative;">
+          <!-- Deck shoe visual -->
+          <div class="deck-shoe-wrap" id="deck-shoe-wrap">
+            <div id="cut-card-indicator">
+              <div class="cut-card-dot"></div>
+              <span>Shuffle after round</span>
+            </div>
+            <div class="deck-shoe" id="deck-shoe">
+              <div class="deck-shoe-layer"></div>
+              <div class="deck-shoe-layer"></div>
+              <div class="deck-shoe-layer"></div>
+              <div class="deck-shoe-layer"></div>
+              <div class="deck-shoe-top">
+                <div class="deck-shoe-logo">VOID<br>21</div>
+              </div>
+            </div>
+            <div class="deck-shoe-count" id="deck-shoe-count">312</div>
+          </div>
+          <!-- Dealer hand -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div class="hand-display" id="dealer-hand"></div>
+            <div class="score-bubble" id="dealer-score">?</div>
+          </div>
+        </div>
       </div>
       <div class="table-felt"></div>
       <div class="players-zone" id="players-zone"></div>
@@ -1300,6 +1457,23 @@ body {
   </div>
 </div>
 
+<!-- ══ SHUFFLE OVERLAY ══ -->
+<div id="shuffle-overlay">
+  <div class="shuffle-eyebrow">🔴 Cut Card Reached</div>
+  <div class="shuffle-title">SHUFFLE TIME</div>
+  <div class="shuffle-sub" id="shuffle-sub">Tap anywhere on the deck to cut it</div>
+  <div id="shuffle-fan-wrap">
+    <div class="shuffle-fan" id="shuffle-fan"></div>
+    <div class="shuffle-cut-label" id="shuffle-cut-label">— TAP ANYWHERE TO CUT —</div>
+  </div>
+  <div class="shuffle-riffle-wrap" id="shuffle-riffle-wrap">
+    <div class="riffle-half" id="riffle-left"></div>
+    <div style="font-family:'Orbitron',monospace;font-size:20px;color:var(--cyan);align-self:center;">⇌</div>
+    <div class="riffle-half" id="riffle-right"></div>
+  </div>
+  <button class="shuffle-done-btn" id="shuffle-done-btn">DEAL NEW SHOE →</button>
+</div>
+
 <script>
 // ══════════════════════════════════════════════
 // AUDIO
@@ -1435,7 +1609,8 @@ function initGame(numPlayers, startChips) {
       eliminated: false,
     });
   }
-  G.deck = shuffle(buildDeck().concat(buildDeck()));
+  G.deck = buildShoe();
+  G.cutCardHit = false;
 }
 
 function isPrivacy() { return G.numPlayers > 1; }
@@ -1886,9 +2061,28 @@ function setPhase(phase) {
 // ══════════════════════════════════════════════
 // DEAL
 // ══════════════════════════════════════════════
+function buildShoe() {
+  // 6 decks — real casino standard
+  let shoe = [];
+  for (let d = 0; d < 6; d++) shoe = shoe.concat(buildDeck());
+  return shuffle(shoe);
+}
+
+const CUT_CARD_DEPTH = Math.floor(312 * 0.72); // ~225 cards — cut card at 72% through 6-deck shoe
+
 function drawCard() {
-  if (G.deck.length < 20) G.deck = shuffle(buildDeck().concat(buildDeck()));
-  return G.deck.pop();
+  if (!G.deck || G.deck.length === 0) {
+    G.deck = buildShoe();
+    G.cutCardHit = false;
+  }
+  const card = G.deck.pop();
+  // Check if we've hit the cut card position
+  if (G.cutCardHit === false && G.deck.length <= (312 - CUT_CARD_DEPTH)) {
+    G.cutCardHit = true;
+    showCutCardIndicator();
+  }
+  updateDeckShoe();
+  return card;
 }
 
 function dealRound() {
@@ -2260,12 +2454,21 @@ async function runDealer() {
   renderDealerHand(true);
   await sleep(600);
   const standAt = G.voidDealerStand || 17;
-  while (handScore(G.dealer.hand) < standAt) {
+  // Dealer hits until score >= standAt, BUT stands on soft 17 (never hits soft 17+)
+  while (true) {
+    const score = handScore(G.dealer.hand);
+    if (score > standAt) break;
+    if (score === standAt) {
+      // Check if this is a soft hand (has an Ace counted as 11)
+      // If soft 17 exactly — dealer stands (player-friendly rule)
+      break;
+    }
+    // score < standAt — dealer must hit
     await sleep(700);
-    const card=drawCard(); G.dealer.hand.push(card);
-    const deckEl=document.querySelector('.game-logo');
-    const dh=document.getElementById('dealer-hand');
-    if(deckEl&&dh){const rect=dh.getBoundingClientRect();spawnTrail(deckEl,rect.left+G.dealer.hand.length*16,rect.top,null);}
+    const card = drawCard(); G.dealer.hand.push(card);
+    const deckEl = document.querySelector('.game-logo');
+    const dh = document.getElementById('dealer-hand');
+    if (deckEl && dh) { const rect = dh.getBoundingClientRect(); spawnTrail(deckEl, rect.left + G.dealer.hand.length * 16, rect.top, null); }
     renderDealerHand(true);
   }
   await sleep(500);
@@ -2420,12 +2623,17 @@ function startNextRound() {
   G.dealer.hand = [];
   G.currentPlayer = 0; G.revealedPlayer = -1;
   document.getElementById('dealer-score').textContent = '?';
-  // pre-fill bets
   G.players.forEach(p => { p.bet = Math.min(p.lastBet||0, p.chips, G.betMax); });
-  // roll void event
   G.activeVoidEvent = null;
   G.voidBJBonus=2.5; G.voidDealerStand=17; G.voidPushPay=0; G.voidNoMinBet=false;
   if (G.voidEventsEnabled) rollVoidEvent(); else hideVoidBanner();
+
+  // If cut card was hit last round, show shuffle screen before continuing
+  if (G.cutCardHit) {
+    showShuffleScreen();
+    return;
+  }
+
   setPhase('betting');
   renderDealerHand(false); renderPlayers(); renderScoreboard();
   if (isPrivacy()) setTimeout(() => dealRound(), 200);
@@ -2709,6 +2917,233 @@ document.getElementById('vj-abandon-modal').addEventListener('click', e => {
   document.addEventListener('touchstart', fade, { once: true, passive: true });
   setTimeout(() => h.classList.add('hint-hidden'), 9000);
 })();
+
+// ══════════════════════════════════════════════
+// DECK SHOE VISUAL
+// ══════════════════════════════════════════════
+function updateDeckShoe() {
+  const count = (typeof G !== 'undefined' && G.deck && G.deck.length != null) ? G.deck.length : 312;
+  const countEl = document.getElementById('deck-shoe-count');
+  const shoeEl = document.getElementById('deck-shoe');
+  const topEl = shoeEl ? shoeEl.querySelector('.deck-shoe-top') : null;
+  if (!countEl || !shoeEl) return;
+
+  countEl.textContent = count + ' cards';
+  countEl.className = 'deck-shoe-count' + (count < 60 ? ' low' : '');
+
+  // Scale the shoe stack height based on remaining cards (312 = full)
+  const pct = Math.max(0.05, count / 312);
+  const layers = shoeEl.querySelectorAll('.deck-shoe-layer');
+  layers.forEach((l, i) => {
+    l.style.opacity = pct > (i * 0.25) ? '1' : '0.15';
+  });
+  if (topEl) topEl.style.opacity = count > 0 ? '1' : '0.3';
+}
+
+function showCutCardIndicator() {
+  const el = document.getElementById('cut-card-indicator');
+  if (el) el.classList.add('show');
+}
+
+function hideCutCardIndicator() {
+  const el = document.getElementById('cut-card-indicator');
+  if (el) el.classList.remove('show');
+}
+
+// ══════════════════════════════════════════════
+// SHUFFLE SCREEN
+// ══════════════════════════════════════════════
+function showShuffleScreen() {
+  const overlay = document.getElementById('shuffle-overlay');
+  const fanWrap = document.getElementById('shuffle-fan-wrap');
+  const riffleWrap = document.getElementById('shuffle-riffle-wrap');
+  const doneBtn = document.getElementById('shuffle-done-btn');
+  const sub = document.getElementById('shuffle-sub');
+  const cutLabel = document.getElementById('shuffle-cut-label');
+
+  if (!overlay || !fanWrap || !riffleWrap || !doneBtn || !sub || !cutLabel) return;
+
+  // Reset state
+  fanWrap.style.display = 'flex';
+  fanWrap.style.flexDirection = 'column';
+  fanWrap.style.alignItems = 'center';
+  fanWrap.style.gap = '16px';
+  riffleWrap.style.display = 'none';
+  doneBtn.classList.remove('show');
+  sub.textContent = 'Tap anywhere on the deck to cut it';
+  cutLabel.style.display = 'block';
+  hideCutCardIndicator();
+
+  // Build card fan — 13 cards spread in an arc
+  const fan = document.getElementById('shuffle-fan');
+  fan.innerHTML = '';
+  const totalCards = 13;
+  const spreadAngle = 60; // total arc degrees
+  const startAngle = -spreadAngle / 2;
+
+  for (let i = 0; i < totalCards; i++) {
+    const card = document.createElement('div');
+    card.className = 'shuffle-fan-card';
+    const angle = startAngle + (i / (totalCards - 1)) * spreadAngle;
+    const radians = angle * Math.PI / 180;
+    // Position cards in arc
+    const radius = 160;
+    const x = 145 + Math.sin(radians) * radius * 0.5 - 26;
+    card.style.left = x + 'px';
+    card.style.transform = `rotate(${angle}deg)`;
+    card.style.zIndex = i;
+    card.dataset.idx = i;
+    fan.appendChild(card);
+  }
+
+  overlay.classList.add('show');
+  playShuffleBeep();
+
+  // Fan click — any card = cut point
+  fan.addEventListener('click', onFanCut, { once: true });
+  fan.style.cursor = 'pointer';
+}
+
+function onFanCut(e) {
+  const fan = document.getElementById('shuffle-fan');
+  if (!fan) return;
+  const cards = fan.querySelectorAll('.shuffle-fan-card');
+  const fanRect = fan.getBoundingClientRect();
+  // Support both mouse and touch
+  const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+  const clickX = clientX - fanRect.left;
+
+  let cutIdx = Math.floor(cards.length / 2); // default middle
+  let minDist = Infinity;
+  cards.forEach((c, i) => {
+    const cRect = c.getBoundingClientRect();
+    const cx = cRect.left + cRect.width / 2 - fanRect.left;
+    const dist = Math.abs(cx - clickX);
+    if (dist < minDist) { minDist = dist; cutIdx = i; }
+  });
+
+  cards[cutIdx].classList.add('cut-point');
+  setTimeout(() => startRiffleAnimation(cutIdx, cards.length), 400);
+}
+
+async function startRiffleAnimation(cutIdx, total) {
+  const fanWrap = document.getElementById('shuffle-fan-wrap');
+  const riffleWrap = document.getElementById('shuffle-riffle-wrap');
+  const sub = document.getElementById('shuffle-sub');
+  const cutLabel = document.getElementById('shuffle-cut-label');
+  if (!fanWrap || !riffleWrap || !sub || !cutLabel) return;
+
+  cutLabel.style.display = 'none';
+  sub.textContent = 'Shuffling…';
+
+  fanWrap.style.display = 'none';
+  riffleWrap.style.display = 'flex';
+
+  const leftEl = document.getElementById('riffle-left');
+  const rightEl = document.getElementById('riffle-right');
+  if (!leftEl || !rightEl) return;
+  leftEl.innerHTML = '';
+  rightEl.innerHTML = '';
+
+  const leftCount = Math.max(1, cutIdx + 1);
+  const rightCount = Math.max(1, total - cutIdx - 1);
+
+  for (let i = 0; i < Math.max(leftCount, rightCount); i++) {
+    if (i < leftCount) {
+      const c = document.createElement('div');
+      c.className = 'riffle-card';
+      c.style.marginBottom = '-6px';
+      leftEl.appendChild(c);
+    }
+    if (i < rightCount) {
+      const c = document.createElement('div');
+      c.className = 'riffle-card';
+      c.style.marginBottom = '-6px';
+      rightEl.appendChild(c);
+    }
+  }
+
+  for (let pass = 0; pass < 3; pass++) {
+    playRiffleSound();
+    const lCards = leftEl.querySelectorAll('.riffle-card');
+    const rCards = rightEl.querySelectorAll('.riffle-card');
+    const maxLen = Math.max(lCards.length, rCards.length);
+    for (let i = 0; i < maxLen; i++) {
+      await sleep(35);
+      if (lCards[i]) { lCards[i].style.background = 'linear-gradient(135deg, #1a3a7e, #0e1f50)'; lCards[i].style.borderColor = 'rgba(24,240,255,0.5)'; }
+      await sleep(35);
+      if (rCards[i]) { rCards[i].style.background = 'linear-gradient(135deg, #1a3a7e, #0e1f50)'; rCards[i].style.borderColor = 'rgba(255,92,122,0.5)'; }
+    }
+    await sleep(200);
+    leftEl.querySelectorAll('.riffle-card').forEach(c => { c.style.background = ''; c.style.borderColor = ''; });
+    rightEl.querySelectorAll('.riffle-card').forEach(c => { c.style.background = ''; c.style.borderColor = ''; });
+    await sleep(150);
+  }
+
+  playShuffleWhoosh();
+  await sleep(400);
+
+  const doneBtn = document.getElementById('shuffle-done-btn');
+  const subEl = document.getElementById('shuffle-sub');
+  if (subEl) subEl.textContent = 'New shoe ready — 312 cards';
+  if (doneBtn) doneBtn.classList.add('show');
+}
+
+document.getElementById('shuffle-done-btn').addEventListener('click', () => {
+  if (!G || !G.players) return; // safety guard
+  G.deck = buildShoe();
+  G.cutCardHit = false;
+  document.getElementById('shuffle-overlay').classList.remove('show');
+  updateDeckShoe();
+  setPhase('betting');
+  renderDealerHand(false); renderPlayers(); renderScoreboard();
+  if (isPrivacy()) setTimeout(() => dealRound(), 200);
+  else setTimeout(() => openSoloBetPopup(), 200);
+});
+
+// ── SHUFFLE SOUNDS ──
+function playShuffleBeep() {
+  // Rising tone — announces shuffle screen
+  playTone(440, 0.15, 'sine', 0.12);
+  playTone(880, 0.2, 'sine', 0.1, 0.12);
+}
+
+function playRiffleSound() {
+  // Noise burst simulating card riffle — use a fast sawtooth sweep
+  playTone(300, 0.08, 'sawtooth', 0.08);
+  playTone(200, 0.12, 'sawtooth', 0.06, 0.05);
+  playTone(400, 0.06, 'square', 0.04, 0.1);
+}
+
+function playShuffleWhoosh() {
+  // Descending whoosh on shuffle complete
+  try {
+    if (!soundEnabled) return;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const bufferSize = audioCtx.sampleRate * 0.4;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.4);
+    filter.Q.value = 0.8;
+    source.connect(filter); filter.connect(gainNode); gainNode.connect(audioCtx.destination);
+    source.start();
+    setTimeout(() => { try { audioCtx.close(); } catch(e) {} }, 600);
+  } catch(e) {}
+}
+
+// Hook updateDeckShoe into every card draw
+{
+  setTimeout(() => { updateDeckShoe(); }, 100);
+}
 
 </script>
 </body>
