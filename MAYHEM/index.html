@@ -2235,9 +2235,18 @@ function playComboCard(idx1, idx2) {
 function resolveCard(type, isCombo) {
     const p = currentPlayer();
     const multiplier = isCombo ? 2 : 1;
+    const isAI = p.isAI;
 
     switch(type) {
-        case 'peek': showPeekModal(); break;
+        case 'peek':
+            if (isAI) {
+                // AI peeks silently — no modal shown to human
+                showEffect('👁️ PEEK!', `${p.name} looks at the top cards`, '#ffe53b');
+                setTimeout(() => { if (G.active && !G.gameOver) aiDrawCard(); }, 1500);
+            } else {
+                showPeekModal();
+            }
+            break;
         case 'shuffle':
             // Animate draw pile wiggle before shuffling
             const dpile = document.getElementById('draw-pile');
@@ -2251,41 +2260,87 @@ function resolveCard(type, isCombo) {
             setTimeout(() => {
                 G.deck = shuffle(G.deck);
                 showEffect('🔀 SHUFFLE!', 'Deck shuffled — new card order', '#9b5de5');
-                setTimeout(() => renderGame(), 1500);
+                setTimeout(() => {
+                    if (isAI) { if (G.active && !G.gameOver) aiDrawCard(); }
+                    else renderGame();
+                }, 1500);
             }, 500);
             break;
         case 'skip':
-            showEffect('⏭️ SKIP!', 'Turn ended — no draw required', '#f72585');
+            showEffect('⏭️ SKIP!', `${p.name} skips drawing`, '#f72585');
             setTimeout(() => { endTurnNoDraw(); }, 1500);
             break;
         case 'reverse':
             G.direction *= -1;
             showEffect('🔁 REVERSE!', 'Turn order flipped', '#4361ee');
-            setTimeout(() => renderGame(), 1500);
+            setTimeout(() => {
+                if (isAI) { if (G.active && !G.gameOver) aiDrawCard(); }
+                else renderGame();
+            }, 1500);
             break;
         case 'blast':
-            if (isCombo) showTargetModal('💥 DOUBLE BLAST!', 'Target draws 4 cards', type, 4);
-            else showTargetModal('💥 BLAST!', 'Target draws 2 cards from the pile', type, 2);
+            if (isAI) {
+                // AI picks random target silently
+                const aiTargets = G.players.filter(x => !x.eliminated && x.id !== G.turn);
+                if (aiTargets.length) {
+                    const t = aiTargets[Math.floor(Math.random() * aiTargets.length)];
+                    executeTargetAction(type, t.id, isCombo ? 4 : 2);
+                    setTimeout(() => { if (G.active) aiDrawCard(); }, 1800);
+                } else { if (G.active && !G.gameOver) aiDrawCard(); }
+            } else {
+                if (isCombo) showTargetModal('💥 DOUBLE BLAST!', 'Target draws 4 cards', type, 4);
+                else showTargetModal('💥 BLAST!', 'Target draws 2 cards from the pile', type, 2);
+            }
             break;
         case 'snatch':
-            if (isCombo) showTargetModal('🤲 DOUBLE SNATCH!', 'Steal 2 random cards from target', type, 2);
-            else showTargetModal('🤲 SNATCH!', 'Steal a random card from target', type, 1);
+            if (isAI) {
+                const aiTargets = G.players.filter(x => !x.eliminated && x.id !== G.turn);
+                if (aiTargets.length) {
+                    const t = aiTargets[Math.floor(Math.random() * aiTargets.length)];
+                    executeTargetAction(type, t.id, isCombo ? 2 : 1);
+                    setTimeout(() => { if (G.active) aiDrawCard(); }, 1800);
+                } else { if (G.active && !G.gameOver) aiDrawCard(); }
+            } else {
+                if (isCombo) showTargetModal('🤲 DOUBLE SNATCH!', 'Steal 2 random cards from target', type, 2);
+                else showTargetModal('🤲 SNATCH!', 'Steal a random card from target', type, 1);
+            }
             break;
         case 'lock':
-            showTargetModal('🔒 LOCK!', "Target can't play cards on their next turn", type, multiplier);
+            if (isAI) {
+                const aiTargets = G.players.filter(x => !x.eliminated && x.id !== G.turn);
+                if (aiTargets.length) {
+                    const t = aiTargets[Math.floor(Math.random() * aiTargets.length)];
+                    executeTargetAction(type, t.id, multiplier);
+                    setTimeout(() => { if (G.active) aiDrawCard(); }, 1800);
+                } else { if (G.active && !G.gameOver) aiDrawCard(); }
+            } else {
+                showTargetModal('🔒 LOCK!', "Target can't play cards on their next turn", type, multiplier);
+            }
             break;
         case 'wild':
-            if (G.lastCard && G.lastCard !== 'wild') { resolveCard(G.lastCard, isCombo); }
-            else { showEffect('🃏 WILD!', 'No previous card to copy', '#ffe53b'); setTimeout(()=>renderGame(),1500); }
+            if (G.lastCard && G.lastCard !== 'wild') {
+                resolveCard(G.lastCard, isCombo);
+            } else {
+                showEffect('🃏 WILD!', 'No previous card to copy', '#ffe53b');
+                setTimeout(() => {
+                    if (isAI) { if (G.active && !G.gameOver) aiDrawCard(); }
+                    else renderGame();
+                }, 1500);
+            }
             break;
-        case 'chaos': showChaosModal(); break;
+        case 'chaos':
+            showChaosModal(); // chaos is public info — everyone's hand moved, fine to show
+            break;
         case 'surge_card':
             p._surgeDraftBonus = (p._surgeDraftBonus||0) + multiplier;
             showEffect('✨ SURGE!', `+${multiplier} extra draft picks next round`, '#00f5d4');
-            setTimeout(() => renderGame(), 1500);
+            setTimeout(() => {
+                if (isAI) { if (G.active && !G.gameOver) aiDrawCard(); }
+                else renderGame();
+            }, 1500);
             break;
         default:
-            renderGame();
+            if (!isAI) renderGame();
     }
 }
 
@@ -2880,14 +2935,8 @@ function doAITurn() {
             p.hand.splice(idx, 1);
             G.discard.push(toPlay); G.lastCard = toPlay; G.stats.cardsPlayed++;
             playSound('play');
-
-            if (['blast','snatch','lock'].includes(toPlay) && target) {
-                executeTargetAction(toPlay, target.id, 1);
-                setTimeout(() => { if (G.active) aiDrawCard(); }, 1800);
-            } else {
-                resolveCard(toPlay, false);
-                setTimeout(() => { if (G.active && !G.gameOver) aiDrawCard(); }, 1800);
-            }
+            // resolveCard now handles all AI cases silently (no modals shown)
+            resolveCard(toPlay, false);
         }, 1000);
     } else {
         showAIBanner(`<b>${p.name}</b> draws a card…`, p.avatar);
