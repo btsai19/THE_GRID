@@ -1267,13 +1267,13 @@
             <div class="cl-entry cl-new">
                 <div class="cl-entry-num">05</div>
                 <div class="cl-entry-top">
-                    <span class="cl-version">v1.0</span>
+                    <span class="cl-version">v1.1</span>
                     <span class="cl-game-tag">MAYHEM</span>
                     <span class="cl-new-badge">NEW</span>
                     <span class="cl-date">Mar 2026</span>
                 </div>
                 <div class="cl-entry-title">MAYHEM Goes Live</div>
-                <div class="cl-entry-summary">A chaotic cartoon card game for 2–6 players. Draw cards, play actions, avoid the bomb — last player standing wins. Three modes, 12 card types, AI opponents, and pass-and-play multiplayer with a full animated flow.</div>
+                <div class="cl-entry-summary">A chaotic cartoon card game for 2–6 players. Draw cards, play actions, avoid the bomb — last player standing wins. Three modes, 12 card types, AI opponents, and pass-and-play multiplayer. v1.1 adds card animations, major bug fixes, and a full UX overhaul.</div>
                 <button class="cl-expand-btn" id="expand-mayhem">Full changelog <span class="cl-chev">▾</span></button>
                 <div class="cl-bullets" id="bullets-mayhem">
                     <ul>
@@ -1283,7 +1283,7 @@
                         <li><b>Surge</b><span>Draft phase before every round — 3 cards revealed from a shared pool, each player picks 1 to add to their deck. Your hand grows stronger over time</span></li>
                         <li class="cl-cat">Cards (12 types)</li>
                         <li><b>💣 BOOM</b><span>Eliminated — unless you hold a DEFUSE card</span></li>
-                        <li><b>🛡️ DEFUSE</b><span>Cancels a BOOM; you then choose where to reinsert it in the deck (Top, Mid, Bottom, or Random)</span></li>
+                        <li><b>🛡️ DEFUSE</b><span>Cancels a BOOM; you then choose where to reinsert it in the deck (⚡ Danger / ↕️ Mid / ✅ Safe / 🎲 Random)</span></li>
                         <li><b>👁️ PEEK / 🔀 SHUFFLE</b><span>Look at the top 3 deck cards, or randomize the entire deck</span></li>
                         <li><b>⏭️ SKIP / 🔁 REVERSE</b><span>End your turn without drawing, or flip the turn order direction</span></li>
                         <li><b>💥 BLAST / 🤲 SNATCH</b><span>Force a target to draw 2 cards, or steal a random card from their hand</span></li>
@@ -1291,21 +1291,32 @@
                         <li><b>🌪️ CHAOS</b><span>Everyone passes their entire hand one seat to the left — instant mayhem</span></li>
                         <li><b>✨ SURGE</b><span>Surge mode only — grants extra draft picks next round</span></li>
                         <li class="cl-cat">Multiplayer &amp; AI</li>
-                        <li><b>2–6 players</b><span>Pass-and-play with a screen-hiding pass screen between every turn — hands stay secret</span></li>
-                        <li><b>AI opponents</b><span>Toggle on/off with a sliding switch; choose 1 to 5 AI players (max = total players minus 1); Easy or Medium difficulty. AI count buttons update dynamically based on player count</span></li>
+                        <li><b>2–6 players</b><span>Pass-and-play with a screen-hiding pass screen between turns — hands stay secret. Pass screen is skipped entirely in solo (vs AI) for smoother flow</span></li>
+                        <li><b>AI opponents</b><span>Toggle on/off with a sliding switch; Easy or Medium difficulty. AI turns now show a banner announcing what they played or drew — but never reveals the exact card drawn</span></li>
+                        <li><b>AI hands hidden</b><span>During an AI turn, your opponent's hand shows face-down cards — no peeking at what they're holding</span></li>
                         <li><b>Avatars &amp; names</b><span>Each player picks an emoji avatar (tap to cycle) and enters a name before the game starts</span></li>
                         <li class="cl-cat">Gameplay Flow</li>
-                        <li><b>Draw reveal</b><span>After drawing a card, the card flips in with an animation and you see what you got before pressing "Next Player →"</span></li>
-                        <li><b>BOOM flow</b><span>Drawing a bomb triggers a full-screen BOOM reveal with screen shake and sound, then shows whether you have a DEFUSE or are eliminated — no instant popups</span></li>
-                        <li><b>Defuse screen</b><span>After using a DEFUSE card, a dedicated screen lets you choose exactly where to reinsert the bomb</span></li>
-                        <li><b>Sort hand</b><span>⇅ SORT button in the action bar sorts your hand by card type priority — DEFUSE first, BOOM last</span></li>
+                        <li><b>Card animations</b><span>Cards physically fly from the draw pile to your hand when drawn, and from your hand to the discard pile when played — no more instant teleporting</span></li>
+                        <li><b>Draw confirm</b><span>After drawing, a modal always shows the card you got ("GOT IT →" in solo, "PASS DEVICE →" in pass-and-play) before advancing</span></li>
+                        <li><b>BOOM flow</b><span>Drawing a bomb triggers a full-screen reveal with screen shake and sound. The hand area shakes too. Shows DEFUSE option or elimination — no instant popups</span></li>
+                        <li><b>Shuffle animation</b><span>Playing SHUFFLE wiggles the draw pile visually before the deck randomizes</span></li>
+                        <li><b>Context hints</b><span>Selecting certain cards shows a hint strip above your hand — WILD shows what it'll copy (and blocks the play if there's nothing to copy), CHAOS warns the pass is coming your way too</span></li>
+                        <li><b>Cancel refunds card</b><span>Cancelling a BLAST / SNATCH / LOCK target selection now returns the card to your hand instead of discarding it for free</span></li>
+                        <li class="cl-cat">Hand Management</li>
+                        <li><b>Drag to reorder</b><span>Drag cards left or right within your hand to rearrange them. A glowing gap indicator shows exactly where the card will land</span></li>
+                        <li><b>Sort persists</b><span>The ⇅ SORT button stays active across turns and auto-sorts newly drawn cards — no need to press it again after every draw</span></li>
+                        <li><b>Click to deselect</b><span>Tapping anywhere outside your hand clears a selected card</span></li>
+                        <li class="cl-cat">Bug Fixes</li>
+                        <li><b>BOOM in starting hand</b><span>Fixed — bomb cards are removed from the deck before dealing and reinserted randomly afterward</span></li>
+                        <li><b>SNATCH shows stolen card</b><span>Effect message now names the exact card taken, not just "stole 1 card"</span></li>
                         <li class="cl-cat">UI &amp; Polish</li>
-                        <li><b>Cartoon theme</b><span>Bangers + Nunito fonts, saturated palette, animated purple/red/cyan background blobs</span></li>
-                        <li><b>Card back design</b><span>Draw pile shows a real card back — diamond trellis pattern, gradient, double border inset, MAYHEM wordmark</span></li>
-                        <li><b>Discard slot</b><span>Dashed placeholder when empty; shows the last played card's face when active</span></li>
+                        <li><b>Card tooltips</b><span>Hover a card (or long-press on mobile) to see its name and full description. Works on hand cards and the discard pile top card</span></li>
+                        <li><b>Sound toggle</b><span>🔊/🔇 button added to the game header</span></li>
+                        <li><b>Draw pile danger glow</b><span>Pile glows yellow → orange → red as the deck shrinks toward empty</span></li>
+                        <li><b>Deal-in animation</b><span>Cards pop in with a staggered animation when a hand is revealed at turn start</span></li>
                         <li><b>Victory confetti</b><span>Canvas confetti burst on game end with full session stats — mode, rounds, cards played, bombs defused</span></li>
                         <li><b>Leaderboard</b><span>Winner's round count submitted to THE GRID global leaderboard via Supabase</span></li>
-                        <li><b>All universal standards</b><span>⌂ portal icon, ← LOBBY button, ← THE GRID link, ? help modal, abandon confirm, desktop hint, audio context fix, mobile responsive</span></li>
+                        <li><b>All universal standards</b><span>⌂ portal icon, ← LOBBY button, ← THE GRID link, ? help modal, abandon confirm, desktop hint, mobile responsive</span></li>
                     </ul>
                 </div>
             </div>
