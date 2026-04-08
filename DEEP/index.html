@@ -815,6 +815,7 @@ input[type=range]::-moz-range-progress {
         <span class="stat-val best" id="res-best">—</span>
       </div>
     </div>
+    <div id="pb-new-badge" style="display:none;margin:6px 0;padding:4px 12px;border-radius:12px;background:rgba(0,245,212,0.12);border:1px solid rgba(0,245,212,0.3);font-size:11px;font-weight:600;letter-spacing:0.12em;color:var(--cyan);text-align:center;">👑 NEW PERSONAL BEST!</div>
     <div id="submit-msg"></div>
     <div id="score-row">
       <input type="text" id="score-name" placeholder="YOUR NAME" maxlength="16">
@@ -1278,10 +1279,13 @@ function showResult(win) {
   document.getElementById('res-time').textContent = fmtTime(timerSecs);
   document.getElementById('res-mines').textContent = cfg.mines;
 
-  const best = localStorage.getItem(bestKey());
+  const key = bestKey();
+  const prev = localStorage.getItem(key);
+  const isNewBest = win && (!prev || timerSecs < +prev);
+  const best = localStorage.getItem(key);
   document.getElementById('res-best').textContent = best ? fmtTime(+best) : '—';
   document.getElementById('hud-best').textContent = best ? fmtTime(+best) : '—';
-
+  document.getElementById('pb-new-badge').style.display = isNewBest ? 'block' : 'none';
   document.getElementById('submit-msg').textContent = '';
   document.getElementById('submit-score-btn').disabled = false;
   document.getElementById('score-row').style.display = win ? 'flex' : 'none';
