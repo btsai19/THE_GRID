@@ -507,6 +507,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;bac
       <div class="stat-block"><span class="stat-label">Merges</span><span class="stat-val" id="res-merges">—</span></div>
       <div class="stat-block"><span class="stat-label">Top Tier</span><span class="stat-val" id="res-tier">—</span></div>
     </div>
+    <div id="pb-new-badge" style="display:none;margin:0 0 6px;padding:4px 12px;border-radius:12px;background:rgba(217,78,10,0.12);border:1px solid rgba(217,78,10,0.35);font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--fire);text-align:center;">👑 New Personal Best!</div>
     <div id="submit-msg"></div>
     <div id="score-row">
       <input type="text" id="score-name" placeholder="Your name" maxlength="16">
@@ -940,6 +941,8 @@ function showResult(win,reason){
     resTimeBlock.querySelector('.stat-label').textContent='Top Tier';
     resTimeBlock.querySelector('.stat-val').textContent=TIER(highestTier)?.name||'—';
   }
+  const _fkey=`forge_best_${gridSize}`,_fprev=localStorage.getItem(_fkey),_fisNew=win&&(!_fprev||score>+_fprev);
+  document.getElementById('pb-new-badge').style.display=_fisNew?'block':'none';
   document.getElementById('submit-msg').textContent='';
   document.getElementById('submit-score-btn').disabled=false;
   document.getElementById('result-overlay').classList.add('show');
