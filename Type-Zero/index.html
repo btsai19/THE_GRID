@@ -237,14 +237,19 @@
 
   .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(5,10,25,0.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;}
   .modal-overlay.open{display:flex;}
-  .modal-box{background:var(--bg2);border:1px solid var(--border-h);border-radius:16px;padding:28px;width:100%;max-width:500px;max-height:82vh;overflow-y:auto;position:relative;}
-  .modal-title{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--blue);margin-bottom:18px;letter-spacing:0.05em;}
+  .modal-box{background:var(--bg2);border:1px solid var(--border-h);border-radius:16px;padding:28px;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;position:relative;}
+  .modal-box::-webkit-scrollbar{width:4px;}
+  .modal-box::-webkit-scrollbar-track{background:transparent;}
+  .modal-box::-webkit-scrollbar-thumb{background:rgba(77,184,255,0.25);border-radius:2px;}
+  .modal-box::-webkit-scrollbar-thumb:hover{background:rgba(77,184,255,0.45);}
+  .modal-box{scrollbar-width:thin;scrollbar-color:rgba(77,184,255,0.25) transparent;}
+  .modal-title{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--blue);margin-bottom:14px;letter-spacing:0.05em;}
   .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;transition:color 0.2s;line-height:1;padding:4px;}
   .modal-close:hover{color:var(--text);}
-  .help-section{margin-bottom:18px;}
+  .help-section{margin-bottom:12px;}
   .help-section-title{font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
   .help-steps{list-style:none;}
-  .help-steps li{display:flex;gap:10px;margin-bottom:8px;font-size:12px;font-weight:300;color:var(--text-dim);line-height:1.5;}
+  .help-steps li{display:flex;gap:10px;margin-bottom:6px;font-size:12px;font-weight:300;color:var(--text-dim);line-height:1.5;}
   .help-step-num{width:20px;height:20px;border-radius:50%;border:1px solid var(--border-h);color:var(--blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
   .score-table{width:100%;border-collapse:collapse;font-size:11px;}
   .score-table th,.score-table td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);}
