@@ -743,6 +743,30 @@
             50% { opacity: 0.5; box-shadow: 0 0 2px rgba(212,169,71,0.3); }
         }
 
+        /* ── NEW GAME NAV PILL ── */
+        .newgame-pill {
+            display: flex; align-items: center; gap: 7px;
+            font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase;
+            color: #4db8ff; background: rgba(77,184,255,0.08);
+            border: 1px solid rgba(77,184,255,0.35); border-radius: 20px;
+            padding: 5px 13px; cursor: none; transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+            font-family: 'Outfit', sans-serif; font-weight: 500;
+            box-shadow: 0 0 12px rgba(77,184,255,0.12);
+        }
+        .newgame-pill:hover {
+            background: rgba(77,184,255,0.15); border-color: rgba(77,184,255,0.55);
+            box-shadow: 0 0 20px rgba(77,184,255,0.25);
+        }
+        .newgame-dot {
+            width: 6px; height: 6px; border-radius: 50%; background: #4db8ff;
+            box-shadow: 0 0 6px rgba(77,184,255,0.8);
+            animation: newgamePulse 1.8s ease-in-out infinite; flex-shrink: 0;
+        }
+        @keyframes newgamePulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(77,184,255,0.8); }
+            50% { opacity: 0.5; box-shadow: 0 0 2px rgba(77,184,255,0.3); }
+        }
+
         /* ── UPDATE BANNER ── */
         #update-banner { max-width: 1200px; margin: 16px auto 0; padding: 0 52px; position: relative; z-index: 2; display: flex; flex-direction: column; gap: 6px; }
         .update-banner-inner {
@@ -918,6 +942,10 @@
                 <div class="now-dot"></div>
                 <span id="nowText">Now Playing</span>
             </div>
+            <button class="newgame-pill" id="newgamePill">
+                <div class="newgame-dot"></div>
+                <span>New Game</span>
+            </button>
             <button class="update-pill" id="updatePill">
                 <div class="update-dot"></div>
                 <span>Updated</span>
@@ -954,16 +982,28 @@
         <div class="mq-track">
             <span class="mq-item">The Grid</span><span class="mq-item">Realm Chess</span>
             <span class="mq-item">Cosmic Blackjack</span><span class="mq-item">DEEP</span>
-            <span class="mq-item">FORGE</span><span class="mq-item">MAYHEM</span><span class="mq-item">Type Zero</span><span class="mq-item">Built by BTSAI</span>
+            <span class="mq-item">FORGE</span><span class="mq-item">MAYHEM</span><span class="mq-item">Type Zero</span><span class="mq-item">Dark Transit</span><span class="mq-item">Built by BTSAI</span>
             <span class="mq-item">Play Now</span><span class="mq-item">Browser Games</span>
             <span class="mq-item">The Grid</span><span class="mq-item">Realm Chess</span>
             <span class="mq-item">Cosmic Blackjack</span><span class="mq-item">DEEP</span>
-            <span class="mq-item">FORGE</span><span class="mq-item">MAYHEM</span><span class="mq-item">Type Zero</span><span class="mq-item">Built by BTSAI</span>
+            <span class="mq-item">FORGE</span><span class="mq-item">MAYHEM</span><span class="mq-item">Type Zero</span><span class="mq-item">Dark Transit</span><span class="mq-item">Built by BTSAI</span>
             <span class="mq-item">Play Now</span><span class="mq-item">Browser Games</span>
         </div>
     </div>
 
     <div id="update-banner">
+        <!-- Banner: Dark Transit launch -->
+        <div class="update-banner-inner" id="ub-inner-darktransit">
+            <div class="ub-dot" style="background:#4db8ff;box-shadow:0 0 6px rgba(77,184,255,0.8);animation:newgamePulse 1.8s ease-in-out infinite;"></div>
+            <span class="ub-tag" style="color:#4db8ff;">Apr 2026</span>
+            <div class="ub-sep" style="width:1px;height:14px;background:rgba(77,184,255,0.2);flex-shrink:0;"></div>
+            <span class="ub-headline">Dark Transit — roguelike card game now live</span>
+            <button class="ub-cta" id="ub-cta-darktransit" style="color:#4db8ff;">
+                View changelog
+                <svg viewBox="0 0 24 24" style="stroke:#4db8ff;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </button>
+            <button class="ub-dismiss" id="ub-dismiss-darktransit" style="border-color:rgba(77,184,255,0.25);color:rgba(77,184,255,0.5);">✕</button>
+        </div>
         <!-- Banner: Type Zero launch + PB update -->
         <div class="update-banner-inner" id="ub-inner-typezero">
             <div class="ub-dot"></div>
@@ -1088,8 +1128,26 @@
                 <div class="cta-arr"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
             </div>
         </a>
-        <div class="card locked">
+        <a href="Dark-Transit/" class="card">
+            <canvas class="card-border-glow" id="borderCanvas7"></canvas>
+            <div class="card-pulse"></div>
+            <div class="card-spotlight"></div>
+            <div class="card-shimmer"></div>
+            <canvas class="card-particles"></canvas>
             <div class="card-num">07</div>
+            <div class="card-status"><div class="dot"></div>Live</div>
+            <div class="card-badge new-badge"><div class="card-badge-dot"></div>New</div>
+            <div class="card-icon">🚀</div>
+            <h2 class="card-name">Dark Transit</h2>
+            <p class="card-genre">Roguelike · Card · Strategy</p>
+            <p class="card-preview">Navigate hostile sectors, build your deck, survive the void. A card-based roguelike where every transit could be your last.</p>
+            <div class="card-cta">
+                <span class="cta-text">Play Now</span>
+                <div class="cta-arr"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+            </div>
+        </a>
+        <div class="card locked">
+            <div class="card-num">08</div>
             <div class="card-status"><div class="dot off"></div>In Development</div>
             <div class="card-icon"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="28" height="28" rx="5" stroke="#444" stroke-width="1.5"/><circle cx="9" cy="9" r="2" fill="#444"/><circle cx="21" cy="9" r="2" fill="#444"/><circle cx="15" cy="15" r="2" fill="#444"/><circle cx="9" cy="21" r="2" fill="#444"/><circle cx="21" cy="21" r="2" fill="#444"/></svg></div>
             <h2 class="card-name">Classified</h2>
@@ -1101,7 +1159,7 @@
             </div>
         </div>
         <div class="card locked">
-            <div class="card-num">08</div>
+            <div class="card-num">09</div>
             <div class="card-status"><div class="dot off"></div>In Development</div>
             <div class="card-icon"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="18,2 10,16 16,16 12,28 22,12 15,12" stroke="#444" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
             <h2 class="card-name">Classified</h2>
@@ -1124,6 +1182,7 @@
             <button class="lb-tab" data-g="FORGE">FORGE</button>
             <button class="lb-tab" data-g="MAYHEM">MAYHEM</button>
             <button class="lb-tab" data-g="Type Zero">Type Zero</button>
+            <button class="lb-tab" data-g="Dark Transit">Dark Transit</button>
         </div>
         <div class="lb-box" id="lbBox">
             <div class="lb-load">Loading scores...</div>
@@ -1269,6 +1328,54 @@
                     <div class="cl-title">The Grid — Changelog</div>
                 </div>
                 <button class="cl-close" id="cl-close">✕</button>
+            </div>
+
+            <div class="cl-entry cl-new">
+                <div class="cl-entry-num">07</div>
+                <div class="cl-entry-top">
+                    <span class="cl-version">v1.0</span>
+                    <span class="cl-game-tag">Dark Transit</span>
+                    <span class="cl-new-badge">NEW</span>
+                    <span class="cl-date">Apr 2026</span>
+                </div>
+                <div class="cl-entry-title">Dark Transit Goes Live</div>
+                <div class="cl-entry-summary">A solo card-based roguelike set in deep space. Build your deck, navigate hostile sectors, and survive long enough to reach the final boss. Every run is procedurally generated — permadeath means starting fresh each time.</div>
+                <button class="cl-expand-btn" id="expand-darktransit">Full changelog <span class="cl-chev">&#9662;</span></button>
+                <div class="cl-bullets" id="bullets-darktransit">
+                    <ul>
+                        <li class="cl-cat">Core Loop</li>
+                        <li><b>Roguelike run structure</b><span>3 sectors + final boss. Each run takes 10–20 minutes. Permadeath — die and start fresh</span></li>
+                        <li><b>Sector map</b><span>Procedurally generated SVG node graph. Branch paths let you choose routes of varying risk and reward</span></li>
+                        <li><b>Node types</b><span>Combat, Elite, Shop, Event, Rest, and Boss — all visible before you commit to a path</span></li>
+                        <li><b>Deck building</b><span>Pick 1 of 3 random cards after every combat. Your deck grows and specializes throughout the run</span></li>
+                        <li class="cl-cat">Starting Decks</li>
+                        <li><b>Striker</b><span>High attack, low defense — high variance, big damage swings</span></li>
+                        <li><b>Sentinel</b><span>Heavy shields and counter-damage — slow, methodical, tanky</span></li>
+                        <li><b>Ghost</b><span>Hack and debuff focused — disrupts enemy patterns, stacks status effects</span></li>
+                        <li class="cl-cat">Combat</li>
+                        <li><b>Energy system</b><span>3 energy per turn — spend it playing cards. Draw 4 cards each turn</span></li>
+                        <li><b>Enemy intent</b><span>Always shows what the enemy will do next turn — plan your block and attacks accordingly</span></li>
+                        <li><b>Status effects</b><span>Burn (damage over time), Stun (skip enemy turn), Disrupt (reduce enemy energy)</span></li>
+                        <li><b>Relic system</b><span>Passive items found in shops and elite nodes that permanently modify your run</span></li>
+                        <li><b>Difficulty scaling</b><span>Enemies gain +10% stats each sector — pressure builds toward the final boss</span></li>
+                        <li class="cl-cat">Animations &amp; Polish</li>
+                        <li><b>Warp transition</b><span>Screen stretches into hyperspace between nodes then snaps to the next encounter</span></li>
+                        <li><b>Card play animation</b><span>Cards fly from hand toward enemy with impact flash on hit</span></li>
+                        <li><b>Dice roll overlay</b><span>Variable damage cards trigger a full dice animation — screen dims, dice tumble, number slams in</span></li>
+                        <li><b>Enemy death</b><span>Ships fragment and dissolve into particles on defeat</span></li>
+                        <li><b>Screen shake</b><span>Triggers on heavy incoming damage</span></li>
+                        <li><b>Ambient starfield</b><span>Slowly drifting star particles behind all screens</span></li>
+                        <li><b>Scanline overlay</b><span>Subtle CRT scanline filter across the entire game</span></li>
+                        <li><b>Transmission events</b><span>Event node text types out like an incoming signal</span></li>
+                        <li class="cl-cat">UI &amp; Meta</li>
+                        <li><b>Callsign system</b><span>Enter your callsign once — reused across all runs. Shown on leaderboard</span></li>
+                        <li><b>End-of-sector report</b><span>Kills, damage taken, cards played, efficiency score shown between sectors</span></li>
+                        <li><b>Run history</b><span>Last 5 runs shown on the start screen — score, sector reached, cause of death</span></li>
+                        <li><b>Card tooltips</b><span>Hover any card to see full description and flavor text</span></li>
+                        <li><b>Leaderboard</b><span>Score (sectors × kills × HP multiplier) submitted to THE GRID global leaderboard</span></li>
+                        <li><b>All universal standards</b><span>⌂ portal icon, ← Menu button, ← THE GRID link, ? help modal, abandon confirm, desktop hint, mobile responsive</span></li>
+                    </ul>
+                </div>
             </div>
 
             <div class="cl-entry cl-new">
@@ -1502,8 +1609,19 @@ function closeChangelog() {
     document.querySelectorAll('.cl-expand-btn').forEach(b => b.classList.remove('open'));
 }
 
-// Nav pill — opens to top
+// Nav pills — both open changelog
 document.getElementById('updatePill').addEventListener('click', () => openChangelog());
+document.getElementById('newgamePill').addEventListener('click', () => openChangelog('expand-darktransit'));
+
+// Banner: Dark Transit launch
+document.getElementById('ub-cta-darktransit').addEventListener('click', e => { e.stopPropagation(); openChangelog('expand-darktransit'); });
+document.getElementById('ub-inner-darktransit').addEventListener('click', e => {
+    if (!e.target.closest('#ub-dismiss-darktransit') && !e.target.closest('#ub-cta-darktransit')) openChangelog('expand-darktransit');
+});
+document.getElementById('ub-dismiss-darktransit').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('ub-inner-darktransit').classList.add('dismissed');
+});
 
 // Banner: Type Zero launch — open and scroll to Type Zero entry
 document.getElementById('ub-cta-typezero').addEventListener('click', e => { e.stopPropagation(); openChangelog('expand-typezero'); });
@@ -1516,6 +1634,12 @@ document.getElementById('ub-dismiss-typezero').addEventListener('click', e => {
 });
 
 document.getElementById('cl-close').addEventListener('click', closeChangelog);
+document.getElementById('expand-darktransit').addEventListener('click', function() {
+    const b = document.getElementById('bullets-darktransit');
+    const open = b.classList.toggle('open');
+    this.classList.toggle('open', open);
+    if (open) { this.closest('.cl-entry')?.classList.remove('cl-new'); this.closest('.cl-entry')?.querySelector('.cl-new-badge')?.remove(); }
+});
 document.getElementById('expand-typezero').addEventListener('click', function() {
     const b = document.getElementById('bullets-typezero');
     const open = b.classList.toggle('open');
@@ -1823,7 +1947,7 @@ document.getElementById('themeTog').addEventListener('click', () => {
 // ── TYPING ──
 const titleEl = document.getElementById('heroTitle');
 // sequence: THE GRID → CHESS → BLACKJACK → loop back to THE GRID forever
-const words = ['THE GRID', 'CHESS', 'BLACKJACK', 'DEEP', 'FORGE', 'MAYHEM', 'TYPE ZERO'];
+const words = ['THE GRID', 'CHESS', 'BLACKJACK', 'DEEP', 'FORGE', 'MAYHEM', 'TYPE ZERO', 'DARK TRANSIT'];
 let wi = 0, ci = 0, del = false, firstCycle = true;
 
 function type() {
@@ -1895,7 +2019,7 @@ async function incrementSessions() {
 }
 
 setTimeout(async () => {
-    animCount(document.getElementById('cGames'), 5, 1200, 2);
+    animCount(document.getElementById('cGames'), 6, 1200, 2);
     const alreadyCounted = localStorage.getItem('thegrid_visited');
     let globalSessions;
     if (!alreadyCounted) {
