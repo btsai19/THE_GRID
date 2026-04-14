@@ -1,0 +1,2574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARD — THE GRID</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #eef0f3;
+  --bg2:      #f7f8fa;
+  --bg3:      #ffffff;
+  --surface:  #ffffff;
+  --surface2: #f0f2f5;
+  --acc:      #1a5fcc;
+  --acc2:     #0d47a8;
+  --acc-dim:  rgba(26,95,204,0.08);
+  --red:      #c0392b;
+  --red-dim:  rgba(192,57,43,0.08);
+  --green:    #1a7a4a;
+  --green-dim:rgba(26,122,74,0.08);
+  --gold:     #b07d10;
+  --purple:   #6a3db8;
+  --text:     #111418;
+  --text2:    #3a4250;
+  --dim:      #8a9ab0;
+  --border:   rgba(0,0,0,0.1);
+  --border-h: rgba(0,0,0,0.22);
+  --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100dvh;background:var(--bg);color:var(--text);font-family:"DM Sans",system-ui,sans-serif;font-weight:400;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+/* GRID TEXTURE */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,0,0,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.035) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+
+/* SCAN LINE SWEEP */
+@keyframes scanSweep{0%{top:-2px;}100%{top:100%}}
+#scan-line{
+  position:fixed;left:0;right:0;height:2px;pointer-events:none;z-index:9998;
+  background:linear-gradient(90deg,transparent,rgba(26,95,204,0.15),transparent);
+  animation:scanSweep 4s linear infinite;opacity:0.6;
+}
+
+/* MONITOR FLICKER TRANSITION */
+#flicker-overlay{
+  position:fixed;inset:0;z-index:9500;pointer-events:none;
+  background:#fff;opacity:0;
+}
+#static-overlay{
+  position:fixed;inset:0;z-index:9499;pointer-events:none;opacity:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+}
+
+/* SCREENS */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;opacity:1;transition:opacity 0.25s ease;}
+.screen.hidden{opacity:0;pointer-events:none;}
+
+/* HEADER */
+#game-header{
+  position:fixed;top:0;left:0;right:0;height:48px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;z-index:1000;
+  background:var(--bg3);border-bottom:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+#game-header.on-menu #btn-home,#game-header.on-menu #btn-menu{display:none;}
+.hdr-left,.hdr-right{display:flex;align-items:center;gap:8px;}
+.hdr-center{font-family:"DM Mono",monospace;font-size:0.6rem;letter-spacing:0.18em;color:var(--dim);text-transform:uppercase;}
+#btn-home{font-size:1rem;opacity:0.45;background:none;border:none;color:var(--text);cursor:pointer;padding:4px 8px;transition:opacity 0.2s;text-decoration:none;display:flex;align-items:center;}
+#btn-home:hover{opacity:1;}
+#btn-menu{font-family:"DM Mono",monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;background:none;border:1px solid var(--border-h);border-radius:3px;color:var(--text2);cursor:pointer;padding:5px 12px;transition:all 0.18s;}
+#btn-menu:hover{background:var(--surface2);color:var(--text);}
+#btn-help{width:26px;height:26px;border-radius:50%;border:1px solid var(--border-h);background:none;color:var(--acc);font-family:"DM Mono",monospace;font-size:0.62rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.18s;}
+#btn-help:hover{background:var(--acc-dim);border-color:var(--acc);}
+#btn-sound{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--dim);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.18s;}
+#btn-sound:hover{border-color:var(--border-h);color:var(--text);}
+
+/* RUN STATUS */
+#run-status{display:flex;align-items:center;gap:16px;}
+.rs-item{display:flex;align-items:center;gap:5px;font-size:0.65rem;font-family:"DM Mono",monospace;color:var(--dim);}
+.rs-val{color:var(--text);font-weight:500;}
+.rs-hp-track{width:52px;height:3px;background:rgba(0,0,0,0.08);border-radius:2px;overflow:hidden;}
+.rs-hp-fill{height:100%;border-radius:2px;background:var(--green);transition:width 0.4s;}
+
+/* EKG HEADER DISPLAY */
+#ekg-canvas{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:120px;height:20px;opacity:0.35;}
+
+/* TYPOGRAPHY */
+.mono{font-family:"DM Mono",monospace;}
+.label-tag{font-family:"DM Mono",monospace;font-size:0.52rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);}
+.section-rule{width:100%;height:1px;background:var(--border);margin:12px 0;}
+
+/* BUTTONS */
+.btn-primary{font-family:"DM Mono",monospace;font-size:0.65rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;background:var(--acc);color:#fff;border:none;border-radius:3px;padding:12px 28px;cursor:pointer;transition:all 0.18s;width:100%;box-shadow:0 2px 8px rgba(26,95,204,0.25);}
+.btn-primary:hover{background:var(--acc2);box-shadow:0 4px 12px rgba(26,95,204,0.3);}
+.btn-secondary{font-family:"DM Mono",monospace;font-size:0.6rem;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;background:none;color:var(--text2);border:1px solid var(--border-h);border-radius:3px;padding:11px 28px;cursor:pointer;transition:all 0.18s;width:100%;}
+.btn-secondary:hover{background:var(--surface2);color:var(--text);}
+.btn-danger{font-family:"DM Mono",monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;background:none;color:var(--red);border:1px solid rgba(192,57,43,0.3);border-radius:3px;padding:9px 18px;cursor:pointer;transition:all 0.18s;}
+.btn-danger:hover{background:var(--red-dim);}
+.btn-neutral{font-family:"DM Mono",monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;background:none;color:var(--text2);border:1px solid var(--border);border-radius:3px;padding:9px 18px;cursor:pointer;transition:all 0.18s;}
+.btn-neutral:hover{background:var(--surface2);}
+
+/* PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;box-shadow:var(--shadow);}
+.panel-accent{background:var(--surface);border:1px solid var(--acc);border-radius:4px;box-shadow:0 0 0 3px var(--acc-dim);}
+
+/* STATUS TAG */
+.status-tag{display:inline-flex;align-items:center;gap:5px;font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 7px;border-radius:2px;font-weight:500;}
+.status-tag.active{background:rgba(26,122,74,0.1);color:var(--green);border:1px solid rgba(26,122,74,0.25);}
+.status-tag.danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(192,57,43,0.25);}
+.status-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 1.4s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* ══ MENU ══ */
+#screen-menu{background:transparent;}
+.menu-inner{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;padding-top:56px;gap:0;}
+.ward-logo{font-family:"DM Mono",monospace;font-size:clamp(3rem,10vw,5.5rem);font-weight:500;letter-spacing:0.05em;color:var(--text);line-height:1;}
+.ward-logo-sub{font-family:"DM Mono",monospace;font-size:0.58rem;letter-spacing:0.24em;color:var(--dim);text-transform:uppercase;margin-top:6px;}
+.menu-divider{width:100%;display:flex;align-items:center;gap:12px;margin:20px 0;}
+.menu-divider::before,.menu-divider::after{content:"";flex:1;height:1px;background:var(--border);}
+.menu-divider span{font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase;white-space:nowrap;}
+.menu-history{width:100%;margin-bottom:16px;}
+.mh-label{font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;padding:0 2px;}
+.mh-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:0.72rem;}
+.mh-row:first-of-type{border-top:1px solid var(--border);}
+.mh-callsign{color:var(--text);font-weight:500;font-family:"DM Mono",monospace;font-size:0.68rem;}
+.mh-detail{color:var(--dim);font-size:0.62rem;font-family:"DM Mono",monospace;}
+.mh-score{color:var(--acc);font-family:"DM Mono",monospace;font-size:0.68rem;font-weight:500;}
+.mh-death{color:var(--red);font-size:0.6rem;font-family:"DM Mono",monospace;}
+.mh-empty{color:var(--dim);font-size:0.72rem;text-align:center;padding:16px 0;font-family:"DM Mono",monospace;}
+.menu-btns{display:flex;flex-direction:column;gap:8px;width:100%;margin-bottom:14px;}
+.menu-grid-link{font-family:"DM Mono",monospace;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);opacity:0.55;text-decoration:none;transition:opacity 0.2s;}
+.menu-grid-link:hover{opacity:0.9;}
+
+/* ══ CALLSIGN ══ */
+#screen-callsign{background:transparent;}
+.cs-box{width:100%;max-width:380px;padding:28px;display:flex;flex-direction:column;gap:16px;}
+.cs-title{font-family:"DM Mono",monospace;font-size:0.7rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--text);}
+.cs-sub{font-size:0.78rem;color:var(--text2);line-height:1.65;}
+.cs-input{background:var(--bg2);border:1px solid var(--border-h);border-radius:3px;color:var(--text);font-family:"DM Mono",monospace;font-size:0.9rem;letter-spacing:0.1em;padding:11px 14px;outline:none;transition:border-color 0.18s;width:100%;text-transform:uppercase;}
+.cs-input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);}
+.cs-input::placeholder{color:var(--dim);text-transform:none;letter-spacing:0.04em;}
+
+/* ══ LOADOUT ══ */
+#screen-loadout{background:transparent;padding-top:52px;justify-content:flex-start;overflow-y:auto;}
+.lo-wrap{width:100%;max-width:760px;display:flex;flex-direction:column;gap:20px;padding:20px;}
+.lo-heading{font-family:"DM Mono",monospace;font-size:0.65rem;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);text-align:center;}
+.lo-title{font-size:1.4rem;font-weight:600;color:var(--text);text-align:center;margin-top:4px;}
+.lo-decks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.deck-card{padding:20px 16px;cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;gap:10px;border:1px solid var(--border);background:var(--surface);border-radius:4px;position:relative;}
+.deck-card:hover{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);}
+.deck-card.selected{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);background:rgba(26,95,204,0.02);}
+.deck-card-num{position:absolute;top:12px;right:14px;font-family:"DM Mono",monospace;font-size:0.5rem;color:var(--dim);letter-spacing:0.1em;}
+.deck-icon{font-size:1.4rem;line-height:1;}
+.deck-name{font-family:"DM Mono",monospace;font-size:0.75rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);}
+.deck-desc{font-size:0.72rem;line-height:1.55;color:var(--text2);}
+.deck-stats{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
+.deck-stat{display:flex;justify-content:space-between;align-items:center;font-size:0.6rem;font-family:"DM Mono",monospace;}
+.deck-stat-label{color:var(--dim);}
+.deck-stat-bar{width:64px;height:2px;background:rgba(0,0,0,0.08);border-radius:1px;overflow:hidden;}
+.deck-stat-fill{height:100%;border-radius:1px;}
+
+/* ══ MAP ══ */
+#screen-map{background:transparent;padding:48px 0 0;justify-content:flex-start;}
+.map-wrap{width:100%;max-width:980px;display:flex;flex-direction:column;gap:12px;padding:14px 20px;height:calc(100dvh - 48px);}
+.map-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.map-sector-tag{font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);}
+.map-sector-name{font-size:1rem;font-weight:600;color:var(--text);margin-top:2px;}
+.map-body{display:flex;gap:12px;flex:1;min-height:0;}
+.map-main{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;}
+.map-canvas-wrap{position:relative;flex:1;min-height:200px;border:1px solid var(--border);border-radius:4px;background:var(--bg2);overflow:hidden;box-shadow:var(--shadow);}
+#map-bg-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+#map-svg{position:relative;z-index:2;width:100%;height:100%;}
+#ship-anim-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;}
+.map-legend{display:flex;gap:12px;flex-wrap:wrap;padding:2px 0;}
+.ml-item{display:flex;align-items:center;gap:5px;font-size:0.58rem;color:var(--dim);font-family:"DM Mono",monospace;}
+.map-side{width:185px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+.side-panel{padding:12px 14px;border:1px solid var(--border);border-radius:4px;background:var(--surface);box-shadow:var(--shadow);}
+.side-label{font-family:"DM Mono",monospace;font-size:0.48rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;display:block;}
+.side-stat{display:flex;justify-content:space-between;font-size:0.68rem;margin-bottom:4px;}
+.side-stat-l{color:var(--dim);font-family:"DM Mono",monospace;font-size:0.62rem;}
+.side-stat-v{color:var(--text);font-weight:500;font-family:"DM Mono",monospace;font-size:0.62rem;}
+.side-chip{font-size:0.58rem;padding:2px 0;border-bottom:1px solid var(--border);color:var(--text2);display:flex;justify-content:space-between;margin-bottom:3px;font-family:"DM Mono",monospace;}
+.side-chip.atk{color:var(--red);}
+.side-chip.shld{color:var(--acc);}
+.side-chip.hack{color:var(--purple);}
+.side-chip span{opacity:0.5;}
+
+/* ══ COMBAT ══ */
+#screen-combat{background:transparent;padding:48px 0 0;justify-content:flex-start;}
+.combat-wrap{width:100%;max-width:860px;display:flex;flex-direction:column;gap:10px;padding:14px 18px;height:calc(100dvh - 48px);overflow-y:auto;}
+
+/* Vital panels */
+.combat-field{display:flex;gap:10px;align-items:stretch;}
+.vital-panel{flex:1;padding:14px;border:1px solid var(--border);border-radius:4px;background:var(--surface);display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.vital-panel.player{border-top:3px solid var(--acc);}
+.vital-panel.enemy{border-top:3px solid var(--red);}
+.vital-panel.shaking{animation:shake 0.35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px)};}
+.vital-id{font-family:"DM Mono",monospace;font-size:0.52rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);}
+.vital-name{font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ekg-canvas{width:100%;height:36px;}
+.vital-hp-row{display:flex;align-items:center;gap:8px;}
+.vital-hp-track{flex:1;height:4px;background:rgba(0,0,0,0.07);border-radius:2px;overflow:hidden;}
+.vital-hp-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+.vital-hp-val{font-family:"DM Mono",monospace;font-size:0.62rem;color:var(--dim);white-space:nowrap;}
+.block-badge{position:absolute;top:10px;right:10px;font-family:"DM Mono",monospace;font-size:0.52rem;background:var(--acc-dim);color:var(--acc);border:1px solid rgba(26,95,204,0.2);border-radius:2px;padding:2px 6px;display:none;}
+.block-badge.visible{display:block;}
+.status-row{display:flex;gap:4px;flex-wrap:wrap;min-height:18px;}
+.status-pip{font-family:"DM Mono",monospace;font-size:0.5rem;padding:2px 6px;border-radius:2px;font-weight:500;letter-spacing:0.06em;}
+.status-pip.burn{background:rgba(180,60,20,0.1);color:#b83a00;border:1px solid rgba(180,60,20,0.2);}
+.status-pip.stun{background:rgba(180,140,0,0.1);color:var(--gold);border:1px solid rgba(180,140,0,0.2);}
+.status-pip.disrupt{background:rgba(106,61,184,0.1);color:var(--purple);border:1px solid rgba(106,61,184,0.2);}
+.vs-sep{flex-shrink:0;display:flex;align-items:center;padding:0 4px;font-family:"DM Mono",monospace;font-size:0.55rem;color:var(--dim);letter-spacing:0.1em;}
+
+/* Intent */
+.intent-box{padding:9px 14px;border-radius:3px;background:rgba(176,125,16,0.06);border:1px solid rgba(176,125,16,0.2);font-size:0.75rem;color:var(--gold);display:flex;align-items:center;justify-content:center;gap:8px;font-family:"DM Mono",monospace;}
+.intent-icon{font-style:normal;}
+
+/* Hand */
+.combat-hand-section{display:flex;flex-direction:column;gap:7px;}
+.hand-label{display:flex;align-items:center;justify-content:space-between;font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);}
+.hand-cards{display:flex;gap:8px;flex-wrap:wrap;}
+.hand-card{flex:1;min-width:90px;max-width:152px;padding:10px;border-radius:3px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all 0.15s;position:relative;box-shadow:var(--shadow);}
+.hand-card:hover{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);transform:translateY(-3px);}
+.hand-card.disabled{opacity:0.3;cursor:not-allowed;pointer-events:none;}
+.hand-card.atk{border-top:2px solid var(--red);}
+.hand-card.atk:hover{border-color:var(--red);box-shadow:0 0 0 3px var(--red-dim);}
+.hand-card.shld{border-top:2px solid var(--acc);}
+.hand-card.hack{border-top:2px solid var(--purple);}
+.hand-card.hack:hover{border-color:var(--purple);box-shadow:0 0 0 3px rgba(106,61,184,0.1);}
+.hand-card.boost{border-top:2px solid var(--green);}
+.hand-card.boost:hover{border-color:var(--green);box-shadow:0 0 0 3px var(--green-dim);}
+.hc-type{font-family:"DM Mono",monospace;font-size:0.46rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--dim);margin-bottom:3px;}
+.hc-name{font-size:0.7rem;font-weight:600;margin-bottom:4px;color:var(--text);}
+.hc-desc{font-size:0.58rem;color:var(--text2);line-height:1.35;margin-bottom:5px;}
+.hc-cost{font-family:"DM Mono",monospace;font-size:0.55rem;color:var(--dim);}
+
+/* Tooltip */
+.card-tooltip{position:absolute;bottom:calc(100%+8px);left:50%;transform:translateX(-50%);background:var(--text);border-radius:3px;padding:10px 12px;width:180px;z-index:200;pointer-events:none;opacity:0;transition:opacity 0.14s;text-align:left;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.hand-card:hover .card-tooltip{opacity:1;}
+.ct-name{font-size:0.68rem;font-weight:600;margin-bottom:4px;color:#fff;}
+.ct-desc{font-size:0.62rem;color:rgba(255,255,255,0.7);line-height:1.45;margin-bottom:5px;}
+.ct-flavor{font-size:0.56rem;color:rgba(255,255,255,0.35);font-style:italic;}
+
+/* Energy */
+.energy-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:1px solid var(--border);border-radius:3px;background:var(--surface);box-shadow:var(--shadow);}
+.energy-pips{display:flex;gap:5px;}
+.pip{width:9px;height:9px;border-radius:50%;background:var(--acc);transition:background 0.18s;}
+.pip.empty{background:rgba(0,0,0,0.1);}
+.energy-label{font-family:"DM Mono",monospace;font-size:0.6rem;color:var(--dim);}
+.btn-end-turn{font-family:"DM Mono",monospace;font-size:0.6rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;padding:7px 18px;border-radius:3px;border:1px solid var(--border-h);background:none;color:var(--text2);cursor:pointer;transition:all 0.18s;}
+.btn-end-turn:hover{background:var(--surface2);color:var(--text);}
+.btn-end-turn:disabled{opacity:0.28;cursor:not-allowed;}
+
+/* ══ DAMAGE FLOATS ══ */
+.dmg-float{position:fixed;font-family:"DM Mono",monospace;font-weight:500;font-size:1.1rem;pointer-events:none;z-index:5000;animation:dmgFloat 0.9s ease-out forwards;}
+.dmg-float.player-dmg{color:var(--red);}
+.dmg-float.enemy-dmg{color:var(--red);}
+.dmg-float.heal-num{color:var(--green);}
+@keyframes dmgFloat{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-50px);}}
+#dmg-vignette{position:fixed;inset:0;pointer-events:none;z-index:4000;border:3px solid transparent;opacity:0;}
+#dmg-vignette.flash{animation:vigFlash 0.5s ease-out forwards;}
+@keyframes vigFlash{0%{opacity:1;border-color:rgba(192,57,43,0.5);}100%{opacity:0;border-color:transparent;}}
+
+/* ══ DICE ══ */
+#dice-overlay{position:fixed;inset:0;z-index:7000;background:rgba(238,240,243,0.92);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+#dice-overlay.active{opacity:1;pointer-events:all;}
+.dice-label{font-family:"DM Mono",monospace;font-size:0.55rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--dim);}
+.die{width:68px;height:68px;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:"DM Mono",monospace;font-size:2rem;font-weight:500;color:var(--text);box-shadow:var(--shadow);}
+.die.rolling{animation:diceRoll 0.42s ease infinite;}
+@keyframes diceRoll{0%{transform:rotate(0) scale(1);}25%{transform:rotate(-15deg) scale(1.06);}75%{transform:rotate(15deg) scale(0.94);}100%{transform:rotate(0) scale(1);}}
+.dice-result{font-family:"DM Mono",monospace;font-size:3rem;font-weight:500;color:var(--acc);opacity:0;transition:opacity 0.25s;}
+.dice-result.show{opacity:1;}
+.dice-sublabel{font-size:0.72rem;color:var(--text2);font-family:"DM Mono",monospace;}
+/* Diagnostic bar sweep */
+.dice-scan{width:200px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;position:relative;}
+.dice-scan-bar{position:absolute;left:-40%;top:0;width:40%;height:100%;background:linear-gradient(90deg,transparent,var(--acc),transparent);animation:scanBar 0.5s linear infinite;}
+@keyframes scanBar{0%{left:-40%;}100%{left:100%;}}
+
+/* ══ CARD PICK ══ */
+#screen-cardpick{background:transparent;padding:52px 20px 20px;justify-content:flex-start;}
+.cp-wrap{width:100%;max-width:700px;display:flex;flex-direction:column;gap:14px;padding-top:16px;}
+.cp-heading{font-size:1.2rem;font-weight:600;color:var(--text);text-align:center;}
+.cp-sub{font-size:0.75rem;color:var(--dim);text-align:center;font-family:"DM Mono",monospace;}
+.cp-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.cp-card{padding:18px 14px;cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;gap:7px;border:1px solid var(--border);border-radius:4px;background:var(--surface);box-shadow:var(--shadow);}
+.cp-card:hover{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);transform:translateY(-2px);}
+.cp-card-type{font-family:"DM Mono",monospace;font-size:0.46rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);}
+.cp-card-name{font-size:0.88rem;font-weight:600;color:var(--text);}
+.cp-card-name.atk{color:var(--red);}
+.cp-card-name.shld{color:var(--acc);}
+.cp-card-name.hack{color:var(--purple);}
+.cp-card-name.boost{color:var(--green);}
+.cp-card-desc{font-size:0.7rem;color:var(--text2);line-height:1.5;}
+.cp-card-flavor{font-size:0.58rem;color:var(--dim);margin-top:4px;font-style:italic;}
+.cp-skip{align-self:center;font-family:"DM Mono",monospace;font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);background:none;border:none;cursor:pointer;opacity:0.5;transition:opacity 0.18s;}
+.cp-skip:hover{opacity:1;}
+
+/* ══ EVENT ══ */
+#screen-event{background:transparent;padding:52px 20px 20px;justify-content:flex-start;}
+.ev-wrap{width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px;padding-top:16px;}
+.ev-transmission{font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:7px;}
+.ev-blink{animation:blink 0.9s step-end infinite;}
+.ev-title{font-size:1.1rem;font-weight:600;color:var(--text);}
+.ev-body{font-size:0.82rem;line-height:1.8;color:var(--text2);min-height:70px;}
+.ev-choices{display:flex;flex-direction:column;gap:8px;}
+.ev-choice{border:1px solid var(--border);border-radius:3px;padding:12px 14px;cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;gap:3px;background:var(--surface);box-shadow:var(--shadow);}
+.ev-choice:hover{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);}
+.ev-choice-label{font-size:0.8rem;font-weight:600;color:var(--text);}
+.ev-choice-hint{font-size:0.65rem;color:var(--dim);font-family:"DM Mono",monospace;}
+
+/* ══ SHOP ══ */
+#screen-shop{background:transparent;padding:52px 20px 20px;justify-content:flex-start;}
+.shop-wrap{width:100%;max-width:700px;display:flex;flex-direction:column;gap:14px;padding-top:16px;}
+.shop-header{display:flex;justify-content:space-between;align-items:center;}
+.shop-title{font-size:1.1rem;font-weight:600;color:var(--text);}
+.shop-scrap{font-family:"DM Mono",monospace;font-size:0.78rem;font-weight:500;color:var(--gold);}
+.shop-section-label{font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.shop-items{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.shop-item{border:1px solid var(--border);border-radius:3px;padding:13px;cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;gap:4px;background:var(--surface);position:relative;box-shadow:var(--shadow);}
+.shop-item:hover:not(.sold){border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);}
+.shop-item.sold{opacity:0.3;cursor:not-allowed;}
+.shop-item-type{font-family:"DM Mono",monospace;font-size:0.46rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);}
+.shop-item-name{font-size:0.8rem;font-weight:600;color:var(--text);}
+.shop-item-desc{font-size:0.66rem;color:var(--text2);line-height:1.44;}
+.shop-item-cost{font-family:"DM Mono",monospace;font-size:0.68rem;font-weight:500;color:var(--gold);margin-top:4px;}
+
+/* ══ REST ══ */
+#screen-rest{background:transparent;padding:52px 20px 20px;justify-content:flex-start;}
+.rest-wrap{width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px;padding-top:16px;}
+.rest-title{font-size:1.1rem;font-weight:600;color:var(--text);text-align:center;}
+.rest-options{display:flex;flex-direction:column;gap:8px;}
+.rest-option{border:1px solid var(--border);border-radius:3px;padding:14px;cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;gap:4px;background:var(--surface);box-shadow:var(--shadow);}
+.rest-option:hover{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-dim);}
+.rest-option-title{font-size:0.85rem;font-weight:600;color:var(--text);}
+.rest-option-desc{font-size:0.7rem;color:var(--text2);line-height:1.44;}
+
+/* ══ SECTOR REPORT ══ */
+#screen-report{background:transparent;padding:52px 20px 20px;justify-content:flex-start;}
+.report-wrap{width:100%;max-width:520px;display:flex;flex-direction:column;gap:16px;padding-top:16px;align-items:center;}
+.report-tag{font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--dim);text-align:center;}
+.report-title{font-size:1.4rem;font-weight:600;color:var(--text);text-align:center;}
+.report-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;}
+.report-stat{border:1px solid var(--border);border-radius:3px;padding:13px;text-align:center;background:var(--surface);box-shadow:var(--shadow);}
+.report-stat-val{font-family:"DM Mono",monospace;font-size:1.6rem;font-weight:500;color:var(--text);}
+.report-stat-label{font-family:"DM Mono",monospace;font-size:0.48rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--dim);margin-top:4px;}
+.report-efficiency{text-align:center;padding:11px;border-radius:3px;width:100%;background:var(--acc-dim);border:1px solid rgba(26,95,204,0.15);}
+.report-eff-val{font-family:"DM Mono",monospace;font-size:1rem;font-weight:500;color:var(--acc);}
+.report-eff-label{font-size:0.6rem;color:var(--dim);margin-top:3px;font-family:"DM Mono",monospace;}
+
+/* ══ DEATH / VICTORY ══ */
+#screen-death,#screen-victory{background:transparent;padding:52px 20px 20px;justify-content:flex-start;}
+.end-wrap{width:100%;max-width:500px;display:flex;flex-direction:column;gap:16px;padding-top:16px;align-items:center;}
+.end-tag{font-family:"DM Mono",monospace;font-size:0.5rem;letter-spacing:0.24em;text-transform:uppercase;text-align:center;}
+.end-tag.death{color:var(--red);}
+.end-tag.victory{color:var(--green);}
+.end-title{font-size:clamp(1.6rem,5vw,2.6rem);font-weight:600;text-align:center;letter-spacing:-0.01em;}
+.end-title.death{color:var(--red);}
+.end-title.victory{color:var(--green);}
+/* EKG flatline for death */
+#death-ekg{width:100%;height:48px;}
+.end-cause{font-size:0.75rem;color:var(--dim);text-align:center;font-family:"DM Mono",monospace;}
+.end-score-box{border:1px solid var(--border);border-radius:4px;padding:20px;width:100%;text-align:center;background:var(--surface);box-shadow:var(--shadow);}
+.end-score-label{font-family:"DM Mono",monospace;font-size:0.48rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;}
+.end-score-val{font-family:"DM Mono",monospace;font-size:2.4rem;font-weight:500;color:var(--text);}
+.pb-badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-family:"DM Mono",monospace;font-size:0.58rem;color:var(--gold);background:rgba(176,125,16,0.08);border:1px solid rgba(176,125,16,0.22);border-radius:2px;padding:4px 10px;}
+.end-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;}
+.end-stat{text-align:center;}
+.end-stat-val{font-family:"DM Mono",monospace;font-size:1.1rem;font-weight:500;color:var(--text);}
+.end-stat-label{font-family:"DM Mono",monospace;font-size:0.48rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--dim);margin-top:3px;}
+.end-btns{display:flex;gap:10px;width:100%;}
+.end-btns .btn-primary,.end-btns .btn-secondary{flex:1;}
+
+/* ══ RELICS ══ */
+.relics-row{display:flex;gap:5px;flex-wrap:wrap;min-height:20px;}
+.relic-pip{display:flex;align-items:center;gap:4px;font-size:0.58rem;padding:3px 7px;border-radius:2px;background:rgba(106,61,184,0.07);border:1px solid rgba(106,61,184,0.18);color:var(--purple);cursor:default;position:relative;font-family:"DM Mono",monospace;}
+.relic-tooltip{position:absolute;bottom:calc(100%+6px);left:50%;transform:translateX(-50%);background:var(--text);border-radius:3px;padding:8px 10px;width:160px;z-index:300;font-size:0.6rem;color:rgba(255,255,255,0.7);line-height:1.4;opacity:0;pointer-events:none;transition:opacity 0.14s;white-space:normal;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.relic-pip:hover .relic-tooltip{opacity:1;}
+
+/* ══ MODALS ══ */
+#help-modal,#abandon-modal{position:fixed;inset:0;z-index:9000;background:rgba(238,240,243,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.22s;}
+#help-modal.open,#abandon-modal.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--bg3);border:1px solid var(--border);border-radius:4px;width:100%;max-width:480px;max-height:82vh;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 16px 48px rgba(0,0,0,0.12);animation:modalUp 0.24s cubic-bezier(0.22,1,0.36,1);}
+@keyframes modalUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:"DM Mono",monospace;font-size:0.68rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text);}
+.modal-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--dim);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;}
+.modal-close:hover{background:var(--surface2);color:var(--text);}
+.help-steps{display:flex;flex-direction:column;gap:11px;}
+.help-step{display:flex;gap:12px;font-size:0.76rem;line-height:1.65;color:var(--text2);}
+.help-step-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;background:var(--acc);color:#fff;font-family:"DM Mono",monospace;font-size:0.58rem;font-weight:500;display:flex;align-items:center;justify-content:center;}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;}
+
+/* CARD FLY */
+.card-fly{position:fixed;z-index:6000;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:6px 12px;font-family:"DM Mono",monospace;font-size:0.68rem;color:var(--text);transition:all 0.4s cubic-bezier(0.22,1,0.36,1);box-shadow:var(--shadow);}
+
+/* DESKTOP HINT */
+#desktop-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;font-family:"DM Mono",monospace;font-size:0.54rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--dim);background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:8px 18px;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.5s;box-shadow:var(--shadow);}
+#desktop-hint.visible{opacity:1;}
+.dh-dot{width:4px;height:4px;border-radius:50%;background:var(--acc);}
+
+/* SIDE TOGGLE */
+#side-toggle{display:none;position:fixed;bottom:16px;right:16px;z-index:900;width:42px;height:42px;border-radius:50%;background:var(--surface);border:1px solid var(--border-h);color:var(--acc);font-size:1rem;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.1);transition:all 0.18s;}
+#side-toggle:hover{background:var(--acc-dim);}
+
+@media(hover:none)and(pointer:coarse){#side-toggle{display:flex;}.map-side{display:none;}.map-side.mobile-open{display:flex;position:fixed;right:0;top:48px;bottom:0;z-index:800;width:190px;flex-direction:column;gap:8px;padding:12px;background:rgba(247,248,250,0.97);border-left:1px solid var(--border);}}
+@media(max-width:768px){.lo-decks{grid-template-columns:1fr;}.cp-cards{grid-template-columns:1fr;}.shop-items{grid-template-columns:1fr;}.hand-cards{gap:6px;}.hand-card{min-width:76px;padding:8px 6px;}.combat-wrap{padding:10px 12px;}.hdr-center{display:none;}.map-body{flex-direction:column;}.map-side{display:none;}}
+@media(max-width:480px){.end-btns{flex-direction:column;}.report-stats{grid-template-columns:1fr;}}
+
+.hc-name.atk{color:var(--red);}
+.hc-name.shld{color:var(--acc);}
+.hc-name.hack{color:var(--purple);}
+.hc-name.boost{color:var(--green);}
+</style>
+</head>
+<body>
+
+<div id="scan-line"></div>
+<div id="flicker-overlay"></div>
+<div id="static-overlay"></div>
+<div id="dmg-vignette"></div>
+
+<div id="dice-overlay">
+  <div class="dice-label">Diagnostic Scan</div>
+  <div class="dice-scan"><div class="dice-scan-bar"></div></div>
+  <div class="die" id="die1">?</div>
+  <div class="dice-result" id="dice-result-val">0</div>
+  <div class="dice-sublabel" id="dice-sub-label"></div>
+</div>
+
+<div id="help-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Protocol Manual</div>
+      <button class="modal-close" id="help-close">&#x2715;</button>
+    </div>
+    <div class="help-steps">
+      <div class="help-step"><div class="help-step-num">1</div><div>Select your operative loadout &#8212; Striker, Sentinel, or Ghost. Each starts with a different card set.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div>Navigate the facility map. Each room holds a different encounter: Combat, Elite, Supply, Event, or Rest.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div>In combat, spend Energy to play cards each turn. Enemy intent is always visible &#8212; plan accordingly.</div></div>
+      <div class="help-step"><div class="help-step-num">4</div><div>After each combat, add one card to your loadout. Build toward a strategy.</div></div>
+      <div class="help-step"><div class="help-step-num">5</div><div>Clear three sectors and neutralize the final target. Termination ends the run &#8212; permanently.</div></div>
+      <div class="help-step"><div class="help-step-num">6</div><div>Score = Sectors cleared &times; Neutralizations &times; Vitals bonus. Posted to THE GRID leaderboard.</div></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="btn-primary" id="help-got-it" style="width:auto;padding:10px 22px;font-size:0.6rem;">Acknowledged</button>
+    </div>
+  </div>
+</div>
+
+<div id="abandon-modal">
+  <div class="modal-box" style="max-width:360px;">
+    <div class="modal-header">
+      <div class="modal-title">Abort Protocol?</div>
+      <button class="modal-close" id="abandon-close">&#x2715;</button>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text2);line-height:1.7;">All progress will be wiped. This subject&#39;s record will be marked terminated.</p>
+    <div class="modal-btns">
+      <button class="btn-neutral" id="abandon-keep">Continue</button>
+      <button class="btn-danger" id="abandon-confirm">Abort</button>
+    </div>
+  </div>
+</div>
+
+<div id="game-header" class="on-menu">
+  <div class="hdr-left">
+    <a id="btn-home" href="../index.html" title="Back to The Grid">&#x2302;</a>
+    <button id="btn-menu" onclick="tryAbandon()">&#8592; Abort</button>
+  </div>
+  <div class="hdr-center">
+    <canvas id="ekg-canvas" width="120" height="20"></canvas>
+    <div id="run-status" style="display:none;">
+      <div class="rs-item">Sector <span class="rs-val" id="hdr-sector">1</span></div>
+      <div class="rs-item">Vitals<div class="rs-hp-track"><div class="rs-hp-fill" id="hdr-hp-fill"></div></div><span class="rs-val" id="hdr-hp">&#8212;</span></div>
+      <div class="rs-item">Scrap <span class="rs-val" id="hdr-scrap">0</span></div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <button id="btn-sound" onclick="toggleSound()">&#128266;</button>
+    <button id="btn-help" onclick="openHelp()">?</button>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="screen" id="screen-menu">
+  <div class="menu-inner">
+    <div style="text-align:center;margin-bottom:6px;">
+      <div class="status-tag active" style="margin-bottom:14px;">Subject Active</div>
+      <div class="ward-logo">WARD</div>
+      <div class="ward-logo-sub">Facility Breach Protocol</div>
+    </div>
+    <div class="menu-divider"><span>Subject Log</span></div>
+    <div class="menu-history panel" style="width:100%;padding:0;">
+      <div class="mh-label" style="padding:12px 12px 0;">Recent Records</div>
+      <div id="history-list"><div class="mh-empty">No records found. Initiate first protocol.</div></div>
+    </div>
+    <div class="menu-btns" style="width:100%;margin-top:4px;">
+      <button class="btn-primary" onclick="startNewRun()">Initiate Protocol</button>
+      <button class="btn-secondary" onclick="openHelp()">Protocol Manual</button>
+    </div>
+    <a href="../index.html" class="menu-grid-link">&#8592; THE GRID</a>
+  </div>
+</div>
+
+<!-- CALLSIGN -->
+<div class="screen hidden" id="screen-callsign">
+  <div class="panel cs-box">
+    <div class="label-tag">Subject Identification</div>
+    <div style="font-size:1rem;font-weight:600;color:var(--text);">Enter Callsign</div>
+    <div class="cs-sub">Your identifier across all runs. Stored locally &#8212; no re-entry required.</div>
+    <input class="cs-input" id="callsign-input" maxlength="12" placeholder="Enter callsign&#x2026;" autocomplete="off" spellcheck="false">
+    <button class="btn-primary" onclick="confirmCallsign()">Confirm</button>
+  </div>
+</div>
+
+<!-- LOADOUT -->
+<div class="screen hidden" id="screen-loadout" style="padding-top:48px;justify-content:flex-start;overflow-y:auto;">
+  <div class="lo-wrap">
+    <div class="lo-heading">Select Operative Loadout</div>
+    <div class="lo-title">Starting Protocol</div>
+    <div class="lo-decks" id="lo-decks"></div>
+    <button class="btn-primary" id="lo-confirm" onclick="confirmLoadout()" style="opacity:0.32;pointer-events:none;">Select a loadout to continue</button>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="screen hidden" id="screen-map" style="padding:48px 0 0;justify-content:flex-start;">
+  <div class="map-wrap">
+    <div class="map-top">
+      <div>
+        <div class="map-sector-tag" id="map-sector-label">Sector 1 of 3</div>
+        <div class="map-sector-name" id="map-sector-name">Outer Perimeter</div>
+      </div>
+      <div class="relics-row" id="map-relics"></div>
+    </div>
+    <div class="map-body">
+      <div class="map-main">
+        <div class="map-canvas-wrap">
+          <canvas id="map-bg-canvas"></canvas>
+          <svg id="map-svg" viewBox="0 0 700 280"></svg>
+          <canvas id="ship-anim-canvas"></canvas>
+        </div>
+        <div class="map-legend">
+          <div class="ml-item"><svg width="10" height="10"><rect x="1" y="1" width="8" height="8" rx="1" fill="rgba(192,57,43,0.7)"/></svg> Combat</div>
+          <div class="ml-item"><svg width="10" height="10"><rect x="1" y="1" width="8" height="8" rx="1" fill="rgba(192,100,0,0.8)"/></svg> Elite</div>
+          <div class="ml-item"><svg width="10" height="10"><rect x="1" y="1" width="8" height="8" rx="1" fill="rgba(176,125,16,0.8)"/></svg> Supply</div>
+          <div class="ml-item"><svg width="10" height="10"><rect x="1" y="1" width="8" height="8" rx="1" fill="rgba(26,95,204,0.7)"/></svg> Event</div>
+          <div class="ml-item"><svg width="10" height="10"><rect x="1" y="1" width="8" height="8" rx="1" fill="rgba(26,122,74,0.7)"/></svg> Rest</div>
+          <div class="ml-item"><svg width="10" height="10"><rect x="1" y="1" width="8" height="8" rx="1" fill="rgba(192,57,43,1)"/></svg> Target</div>
+        </div>
+      </div>
+      <div class="map-side" id="map-side">
+        <div class="side-panel">
+          <span class="side-label">Mission Log</span>
+          <div class="side-stat"><span class="side-stat-l">Sector</span><span class="side-stat-v" id="side-sector">1/3</span></div>
+          <div class="side-stat"><span class="side-stat-l">Neutralized</span><span class="side-stat-v" id="side-kills">0</span></div>
+          <div class="side-stat"><span class="side-stat-l">Scrap</span><span class="side-stat-v" id="side-scrap">0</span></div>
+          <div class="side-stat"><span class="side-stat-l">Vitals</span><span class="side-stat-v" id="side-hp">&#8212;</span></div>
+        </div>
+        <div class="side-panel">
+          <span class="side-label">Loadout</span>
+          <div id="side-deck-list"></div>
+        </div>
+        <div class="side-panel">
+          <span class="side-label">Implants</span>
+          <div id="side-relics-list" style="font-size:0.62rem;color:var(--dim);font-family:'DM Mono',monospace;">None active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="side-toggle" onclick="toggleSidePanel()">&#9776;</button>
+</div>
+
+<!-- COMBAT -->
+<div class="screen hidden" id="screen-combat" style="padding:48px 0 0;justify-content:flex-start;">
+  <div class="combat-wrap">
+    <div class="combat-field">
+      <div class="vital-panel player" id="combatant-player">
+        <div class="block-badge" id="player-block-badge">0 Block</div>
+        <div class="vital-id">Subject / Operative</div>
+        <div class="vital-name" id="player-name-label">PILOT</div>
+        <canvas class="ekg-canvas" id="player-ekg"></canvas>
+        <div class="vital-hp-row">
+          <div class="vital-hp-track"><div class="vital-hp-fill" id="player-hp-fill" style="background:var(--green);width:100%;"></div></div>
+          <span class="vital-hp-val" id="player-hp-val">75/75</span>
+        </div>
+        <div class="status-row" id="player-status"></div>
+      </div>
+      <div class="vs-sep">&#8212;</div>
+      <div class="vital-panel enemy" id="combatant-enemy">
+        <div class="block-badge" id="enemy-block-badge">0 Block</div>
+        <div class="vital-id">Target / Hostile</div>
+        <div class="vital-name" id="enemy-name-label">ENEMY</div>
+        <canvas class="ekg-canvas" id="enemy-ekg"></canvas>
+        <div class="vital-hp-row">
+          <div class="vital-hp-track"><div class="vital-hp-fill" id="enemy-hp-fill" style="background:var(--red);width:100%;"></div></div>
+          <span class="vital-hp-val" id="enemy-hp-val">40/40</span>
+        </div>
+        <div class="status-row" id="enemy-status"></div>
+      </div>
+    </div>
+    <div class="intent-box" id="intent-box">
+      <span class="intent-icon" id="intent-icon">&#9876;</span>
+      <span id="intent-text">Target preparing&#x2026;</span>
+    </div>
+    <div class="relics-row" id="combat-relics"></div>
+    <div class="combat-hand-section">
+      <div class="hand-label">
+        <span>Active Cards</span>
+        <span id="deck-count-label" style="font-family:'DM Mono',monospace;">Deck: 0 &#x00B7; Discard: 0</span>
+      </div>
+      <div class="hand-cards" id="hand-cards"></div>
+    </div>
+    <div class="energy-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="energy-label">Energy</span>
+        <div class="energy-pips" id="energy-pips"></div>
+        <span class="energy-label" id="energy-label">3 / 3</span>
+      </div>
+      <button class="btn-end-turn" id="btn-end-turn" onclick="endPlayerTurn()">End Turn</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARD PICK -->
+<div class="screen hidden" id="screen-cardpick" style="padding:52px 20px 20px;justify-content:flex-start;">
+  <div class="cp-wrap">
+    <div class="label-tag" style="text-align:center;">Protocol Expansion</div>
+    <div class="cp-heading">Select a Card</div>
+    <div class="cp-sub">Add one card to your loadout for the remainder of this run.</div>
+    <div class="cp-cards" id="cp-cards"></div>
+    <button class="cp-skip" onclick="skipCardPick()">Skip &#x2192;</button>
+  </div>
+</div>
+
+<!-- EVENT -->
+<div class="screen hidden" id="screen-event" style="padding:52px 20px 20px;justify-content:flex-start;">
+  <div class="ev-wrap">
+    <div class="ev-transmission"><span class="ev-blink">&#x25AE;</span> Incoming transmission</div>
+    <div class="ev-title" id="ev-title">Unknown Signal</div>
+    <div class="section-rule"></div>
+    <div class="ev-body" id="ev-body"></div>
+    <div class="ev-choices" id="ev-choices"></div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div class="screen hidden" id="screen-shop" style="padding:52px 20px 20px;justify-content:flex-start;">
+  <div class="shop-wrap">
+    <div class="shop-header">
+      <div>
+        <div class="label-tag">Supply Cache</div>
+        <div class="shop-title">Transit Depot</div>
+      </div>
+      <div class="shop-scrap">&#x25C8; <span id="shop-scrap-val">0</span></div>
+    </div>
+    <div class="section-rule"></div>
+    <div><div class="shop-section-label">Cards</div><div class="shop-items" id="shop-card-items"></div></div>
+    <div><div class="shop-section-label">Implants &amp; Relics</div><div class="shop-items" id="shop-relic-items"></div></div>
+    <button class="btn-secondary" style="width:auto;align-self:center;padding:10px 22px;" onclick="leaveShop()">Leave Depot &#x2192;</button>
+  </div>
+</div>
+
+<!-- REST -->
+<div class="screen hidden" id="screen-rest" style="padding:52px 20px 20px;justify-content:flex-start;">
+  <div class="rest-wrap">
+    <div class="label-tag" style="text-align:center;">Secure Zone</div>
+    <div class="rest-title">Safe Room</div>
+    <p style="font-size:0.76rem;color:var(--dim);text-align:center;line-height:1.7;font-family:'DM Mono',monospace;">System nominal. Take a moment to recover or recalibrate.</p>
+    <div class="rest-options" id="rest-options"></div>
+  </div>
+</div>
+
+<!-- SECTOR REPORT -->
+<div class="screen hidden" id="screen-report" style="padding:52px 20px 20px;justify-content:flex-start;">
+  <div class="report-wrap">
+    <div class="report-tag" id="report-sector-label">Sector 1 Cleared</div>
+    <div class="report-title">Sector Clear</div>
+    <div class="section-rule" style="width:100%;"></div>
+    <div class="report-stats">
+      <div class="report-stat"><div class="report-stat-val" id="rpt-kills">0</div><div class="report-stat-label">Neutralized</div></div>
+      <div class="report-stat"><div class="report-stat-val" id="rpt-dmg">0</div><div class="report-stat-label">Dmg Taken</div></div>
+      <div class="report-stat"><div class="report-stat-val" id="rpt-cards">0</div><div class="report-stat-label">Cards Played</div></div>
+      <div class="report-stat"><div class="report-stat-val" id="rpt-hp">0</div><div class="report-stat-label">Vitals Remaining</div></div>
+    </div>
+    <div class="report-efficiency">
+      <div class="report-eff-label">Efficiency Rating</div>
+      <div class="report-eff-val" id="rpt-efficiency">&#8212;</div>
+    </div>
+    <button class="btn-primary" style="width:100%;" onclick="advanceSector()">Enter Next Sector &#x2192;</button>
+  </div>
+</div>
+
+<!-- DEATH -->
+<div class="screen hidden" id="screen-death" style="padding:52px 20px 20px;justify-content:flex-start;">
+  <div class="end-wrap">
+    <div class="end-tag death">Subject Terminated</div>
+    <div class="end-title death">Signal Lost</div>
+    <canvas id="death-ekg"></canvas>
+    <div class="end-cause" id="death-cause">Neutralized in Sector 1</div>
+    <div class="end-score-box panel">
+      <div class="end-score-label">Final Score</div>
+      <div class="end-score-val" id="death-score">0</div>
+      <div id="death-pb-badge" style="display:none;" class="pb-badge">&#x25C8; New Personal Best</div>
+    </div>
+    <div class="end-stats">
+      <div class="end-stat"><div class="end-stat-val" id="death-sector">1</div><div class="end-stat-label">Sector</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="death-kills">0</div><div class="end-stat-label">Kills</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="death-cards">0</div><div class="end-stat-label">Cards</div></div>
+    </div>
+    <div class="end-btns">
+      <button class="btn-primary" onclick="startNewRun()">New Protocol</button>
+      <button class="btn-secondary" onclick="showScreen('screen-menu');loadHistory();">Subject Log</button>
+    </div>
+  </div>
+</div>
+
+<!-- VICTORY -->
+<div class="screen hidden" id="screen-victory" style="padding:52px 20px 20px;justify-content:flex-start;">
+  <div class="end-wrap">
+    <div class="end-tag victory">Containment Breached</div>
+    <div class="end-title victory">Breach Successful</div>
+    <div class="end-cause">All sectors cleared. Facility containment has failed.</div>
+    <div class="end-score-box panel">
+      <div class="end-score-label">Final Score</div>
+      <div class="end-score-val" id="victory-score">0</div>
+      <div id="victory-pb-badge" style="display:none;" class="pb-badge">&#x25C8; New Personal Best</div>
+    </div>
+    <div class="end-stats">
+      <div class="end-stat"><div class="end-stat-val" id="vic-sectors">3</div><div class="end-stat-label">Sectors</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="vic-kills">0</div><div class="end-stat-label">Kills</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="vic-cards">0</div><div class="end-stat-label">Cards</div></div>
+    </div>
+    <div class="end-btns">
+      <button class="btn-primary" onclick="startNewRun()">New Protocol</button>
+      <button class="btn-secondary" onclick="showScreen('screen-menu');loadHistory();">Subject Log</button>
+    </div>
+  </div>
+</div>
+
+<div id="desktop-hint"><div class="dh-dot"></div><span>Best experienced on desktop</span><div class="dh-dot"></div></div>
+
+<script>
+
+// ═══════════════ WARD — Visual Engine ═══════════════
+
+const SUPABASE_URL = 'https://kepbwovgwvsfycmvsztu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtlcGJ3b3Znd3ZzZnljbXZzenR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0OTkxNDMsImV4cCI6MjA5MDA3NTE0M30.cAS58qI-4N1Ddgrd4tqIxwjOj_u5l2QL5yNmXQVRr7c';
+
+async function submitScore(name, game, score) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/scores`, {
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({name,game,score,date:new Date().toISOString().split('T')[0]})
+    });
+  } catch(e){}
+}
+
+// ── AUDIO ──
+let audioCtx, soundOn = true;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+document.addEventListener('click',()=>{try{if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}},{once:true});
+function playTone(freq,type='sine',dur=0.1,vol=0.14,delay=0){
+  if(!soundOn)return;
+  try{const c=getCtx();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type;o.frequency.value=freq;const t=c.currentTime+delay;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur);}catch(e){}
+}
+function playCardSound(){playTone(880,'square',0.04,0.08);playTone(1100,'square',0.03,0.06,0.04);}
+function playHitSound(){playTone(200,'sawtooth',0.1,0.18);playTone(150,'sawtooth',0.08,0.14,0.07);}
+function playShieldSound(){playTone(600,'sine',0.08,0.12);playTone(900,'sine',0.06,0.08,0.05);}
+function playDeathSound(){playTone(440,'sine',0.08,0.14);playTone(220,'sine',0.6,0.12,0.08);playTone(110,'sine',0.5,0.1,0.3);}
+function playVictorySound(){[523,659,784,1047].forEach((f,i)=>playTone(f,'sine',0.18,0.15,i*0.1));}
+function playDiceSound(){playTone(1200,'square',0.03,0.08);}
+function playWarpSound(){playTone(800,'sine',0.06,0.1);playTone(400,'sine',0.08,0.08,0.04);}
+function playRestSound(){playTone(528,'sine',0.25,0.1);playTone(660,'sine',0.2,0.08,0.2);}
+function playBeatSound(){playTone(60,'sine',0.05,0.08);}
+function toggleSound(){soundOn=!soundOn;document.getElementById('btn-sound').textContent=soundOn?'🔊':'🔇';}
+
+// ── MONITOR FLICKER TRANSITION ──
+function flickerTransition(fn){
+  const fl=document.getElementById('flicker-overlay');
+  const st=document.getElementById('static-overlay');
+  fl.style.transition='none'; fl.style.opacity='0';
+  st.style.transition='none'; st.style.opacity='0';
+  requestAnimationFrame(()=>{
+    fl.style.transition='opacity 0.08s'; fl.style.opacity='0.9';
+    st.style.transition='opacity 0.08s'; st.style.opacity='0.8';
+    setTimeout(()=>{
+      fn();
+      fl.style.opacity='0.6';
+      setTimeout(()=>{ fl.style.opacity='0'; st.style.opacity='0'; },80);
+    },90);
+  });
+}
+function warpTo(fn){ flickerTransition(fn); }
+
+// ── SCREEN MANAGEMENT ──
+let currentScreen = 'screen-menu';
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('hidden',s.id!==id));
+  currentScreen=id;
+  const header=document.getElementById('game-header');
+  const rs=document.getElementById('run-status');
+  const isMenu=['screen-menu','screen-callsign','screen-loadout'].includes(id);
+  const isEnd=['screen-death','screen-victory'].includes(id);
+  header.classList.toggle('on-menu',isMenu);
+  rs.style.display=(!isMenu&&!isEnd)?'flex':'none';
+  const ekgEl=document.getElementById('ekg-canvas');
+  if(ekgEl) ekgEl.style.display=(!isMenu&&!isEnd)?'block':'none';
+  updateHeaderStats();
+}
+
+// ── EKG LINE DRAWING ──
+let _ekgFrame=null, _ekgOffset=0, _ekgFlatline=false;
+const _ekgData={player:[], enemy:[]};
+
+function generateEkgPoint(t, isFlat){
+  if(isFlat) return 0.5;
+  const cycle = (t % 1);
+  if(cycle < 0.1) return 0.5 + Math.sin(cycle/0.1*Math.PI)*0.35;
+  if(cycle < 0.15) return 0.5 - Math.sin((cycle-0.1)/0.05*Math.PI)*0.15;
+  if(cycle < 0.2) return 0.5 + Math.sin((cycle-0.15)/0.05*Math.PI)*0.08;
+  return 0.5 + (Math.random()-0.5)*0.04;
+}
+
+function drawEkg(canvas, t, color, isFlat){
+  if(!canvas) return;
+  const w=canvas.width=canvas.offsetWidth||160;
+  const h=canvas.height=canvas.offsetHeight||36;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,w,h);
+  // Grid lines
+  ctx.strokeStyle='rgba(0,0,0,0.05)'; ctx.lineWidth=1;
+  [h*0.25,h*0.5,h*0.75].forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();});
+  // EKG line
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.lineJoin='round';
+  ctx.beginPath();
+  const pts=60;
+  for(let i=0;i<pts;i++){
+    const x=i/pts*w;
+    const pt=generateEkgPoint(t + i/pts*2, isFlat);
+    if(i===0) ctx.moveTo(x, h*pt); else ctx.lineTo(x, h*pt);
+  }
+  ctx.stroke();
+  // Pulse dot
+  if(!isFlat){
+    const pt=generateEkgPoint(t, false);
+    ctx.fillStyle=color;
+    ctx.globalAlpha=0.8;
+    ctx.beginPath();ctx.arc(w*0.95, h*pt, 3, 0, Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+  }
+}
+
+function drawHeaderEkg(t){
+  const canvas=document.getElementById('ekg-canvas');
+  if(!canvas||canvas.style.display==='none') return;
+  const w=canvas.width=120; const h=canvas.height=20;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle='rgba(26,95,204,0.5)'; ctx.lineWidth=1.2; ctx.lineJoin='round';
+  ctx.beginPath();
+  const pts=40;
+  for(let i=0;i<pts;i++){
+    const x=i/pts*w;
+    const pt=generateEkgPoint(t+i/pts*2,false);
+    if(i===0) ctx.moveTo(x,h*pt); else ctx.lineTo(x,h*pt);
+  }
+  ctx.stroke();
+}
+
+let _globalT=0;
+function startEkgLoop(){
+  stopEkgLoop();
+  function frame(){
+    _globalT+=0.018;
+    drawHeaderEkg(_globalT);
+    const pe=document.getElementById('player-ekg');
+    const ee=document.getElementById('enemy-ekg');
+    if(pe) drawEkg(pe,_globalT,'rgba(26,122,74,0.7)',false);
+    if(ee){
+      const cs=window.G&&G.combatState;
+      const enemyDead=cs&&cs.enemy&&cs.enemy.currentHp<=0;
+      drawEkg(ee,_globalT*1.3,'rgba(192,57,43,0.7)',enemyDead);
+    }
+    _ekgFrame=requestAnimationFrame(frame);
+  }
+  _ekgFrame=requestAnimationFrame(frame);
+}
+function stopEkgLoop(){if(_ekgFrame){cancelAnimationFrame(_ekgFrame);_ekgFrame=null;}}
+startEkgLoop();
+
+// Death EKG flatline animation
+function drawDeathEkg(){
+  const canvas=document.getElementById('death-ekg');
+  if(!canvas) return;
+  canvas.width=canvas.offsetWidth||460; canvas.height=48;
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  // Draw flatline with a brief spike at start
+  ctx.strokeStyle='rgba(192,57,43,0.7)'; ctx.lineWidth=1.5; ctx.lineJoin='round';
+  ctx.beginPath();
+  const pts=80;
+  for(let i=0;i<pts;i++){
+    const x=i/pts*w;
+    const t=i/pts;
+    let y;
+    if(t<0.15) y=generateEkgPoint(t*6,false);
+    else y=0.5;
+    if(i===0) ctx.moveTo(x,h*y); else ctx.lineTo(x,h*y);
+  }
+  ctx.stroke();
+}
+
+// ── MAP BACKGROUND ──
+function renderMapBackground(){
+  const canvas=document.getElementById('map-bg-canvas');
+  if(!canvas) return;
+  const dpr=window.devicePixelRatio||1;
+  const w=canvas.offsetWidth*dpr, h=canvas.offsetHeight*dpr;
+  if(w<2||h<2) return;
+  canvas.width=w; canvas.height=h;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,w,h);
+  // Fine grid
+  ctx.strokeStyle='rgba(0,0,0,0.05)'; ctx.lineWidth=1;
+  const gs=w/20;
+  for(let x=0;x<w;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  // Accent grid lines every 4
+  ctx.strokeStyle='rgba(26,95,204,0.06)'; ctx.lineWidth=1;
+  for(let x=0;x<w;x+=gs*4){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=gs*4){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  // Corridor labels (floor plan feel)
+  ctx.fillStyle='rgba(26,95,204,0.06)'; ctx.font=`${Math.round(gs*0.7)}px DM Mono,monospace`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const labels=['A1','B2','C3','A4','B1'];
+  labels.forEach((l,i)=>{ctx.fillText(l,(0.15+i*0.18)*w,h*0.92);});
+}
+
+// ── MAP PATH FLOW ──
+let _mapFloatT=0, _mapFloatFrame=null;
+function startMapFlow(){
+  stopMapFlow();
+  function frame(){
+    _mapFloatT+=0.015;
+    updatePathFlow(_mapFloatT);
+    _mapFloatFrame=requestAnimationFrame(frame);
+  }
+  _mapFloatFrame=requestAnimationFrame(frame);
+}
+function stopMapFlow(){if(_mapFloatFrame){cancelAnimationFrame(_mapFloatFrame);_mapFloatFrame=null;}}
+
+function updatePathFlow(t){
+  const svg=document.getElementById('map-svg');
+  if(!svg||!G.mapEdges) return;
+  G.mapEdges.forEach((e,i)=>{
+    const from=G.mapNodes.find(n=>n.id===e.from);
+    const to=G.mapNodes.find(n=>n.id===e.to);
+    if(!from||!to) return;
+    const isAvailable=to.available&&!to.visited;
+    const dotId=`fd-${i}`;
+    let dot=svg.getElementById(dotId);
+    if(isAvailable){
+      if(!dot){
+        dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        dot.setAttribute('id',dotId);dot.setAttribute('r','2');
+        dot.setAttribute('fill','rgba(26,95,204,0.5)');dot.setAttribute('pointer-events','none');
+        svg.appendChild(dot);
+      }
+      const p=((t*0.5+i*0.6)%1);
+      dot.setAttribute('cx',from.x+(to.x-from.x)*p);
+      dot.setAttribute('cy',from.y+(to.y-from.y)*p);
+      dot.setAttribute('opacity',String(Math.sin(p*Math.PI)*0.7));
+    } else if(dot){dot.remove();}
+  });
+}
+
+// ── MAP RENDER ──
+function renderMap(){
+  renderMapBackground();
+  const svg=document.getElementById('map-svg');
+  const {nodes,edges}=G.mapNodes.length?{nodes:G.mapNodes,edges:G.mapEdges}:{nodes:[],edges:[]};
+  const nodeColor={
+    start:'rgba(26,122,74,0.8)',combat:'rgba(192,57,43,0.75)',
+    elite:'rgba(192,100,0,0.85)',shop:'rgba(176,125,16,0.8)',
+    event:'rgba(26,95,204,0.75)',rest:'rgba(26,122,74,0.7)',
+    boss:'rgba(192,57,43,0.95)'
+  };
+  const nodeLabel={start:'S',combat:'⚔',elite:'!',shop:'◈',event:'?',rest:'+',boss:'X'};
+
+  let html=`<defs>
+    <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+      <path d="M0,1 L5,3 L0,5 Z" fill="rgba(0,0,0,0.2)"/>
+    </marker>
+    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>`;
+
+  edges.forEach(e=>{
+    const from=nodes.find(n=>n.id===e.from);
+    const to=nodes.find(n=>n.id===e.to);
+    if(!from||!to) return;
+    const active=to.available||to.visited;
+    html+=`<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"
+      stroke="rgba(0,0,0,${active?0.2:0.07})" stroke-width="${active?1.5:1}"
+      stroke-dasharray="${active?'none':'3,3'}" marker-end="url(#arr)"/>`;
+  });
+
+  nodes.forEach(n=>{
+    const isCurrent=G.currentNode===n.id;
+    const r=n.type==='boss'?12:9;
+    const col=nodeColor[n.type]||'rgba(0,0,0,0.3)';
+    const lbl=nodeLabel[n.type]||'?';
+    const opacity=n.visited?0.3:n.available?1:0.22;
+    const canClick=n.available&&!n.visited;
+    const cursor=canClick?'cursor:pointer;':'';
+    const stroke=isCurrent?'rgba(26,95,204,0.9)':canClick?'rgba(0,0,0,0.4)':'rgba(0,0,0,0.15)';
+    const sw=isCurrent?2.5:canClick?1.5:1;
+    const filter=canClick?'filter="url(#glow)"':'';
+
+    html+=`<g style="${cursor}opacity:${opacity}" onclick="nodeClicked('${n.id}')">`;
+    // Room shape — rectangle for floor plan feel
+    const rw=r*2.2, rh=r*1.8;
+    if(canClick&&!isCurrent){
+      html+=`<rect x="${n.x-rw/2-4}" y="${n.y-rh/2-4}" width="${rw+8}" height="${rh+8}" rx="3"
+        fill="${col}" opacity="0.0" stroke="${col}" stroke-width="1">
+        <animate attributeName="stroke-width" values="1;3;1" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.35;0" dur="1.8s" repeatCount="indefinite"/>
+      </rect>`;
+    }
+    html+=`<rect x="${n.x-rw/2}" y="${n.y-rh/2}" width="${rw}" height="${rh}" rx="2"
+      fill="${n.visited?'rgba(0,0,0,0.03)':col+'1a'}" stroke="${stroke}" stroke-width="${sw}"/>`;
+    html+=`<text x="${n.x}" y="${n.y+3}" text-anchor="middle" font-size="8"
+      fill="${n.visited?'rgba(0,0,0,0.2)':col}" font-family="DM Mono,monospace" font-weight="500">${lbl}</text>`;
+    if(isCurrent){
+      // Crosshair marker
+      html+=`<g>
+        <circle cx="${n.x}" cy="${n.y}" r="20" fill="none" stroke="rgba(26,95,204,0.3)" stroke-width="1" stroke-dasharray="3,3">
+          <animateTransform attributeName="transform" type="rotate" from="0 ${n.x} ${n.y}" to="360 ${n.x} ${n.y}" dur="8s" repeatCount="indefinite"/>
+        </circle>
+        <line x1="${n.x-24}" y1="${n.y}" x2="${n.x-16}" y2="${n.y}" stroke="rgba(26,95,204,0.6)" stroke-width="1"/>
+        <line x1="${n.x+16}" y1="${n.y}" x2="${n.x+24}" y2="${n.y}" stroke="rgba(26,95,204,0.6)" stroke-width="1"/>
+        <line x1="${n.x}" y1="${n.y-24}" x2="${n.x}" y2="${n.y-16}" stroke="rgba(26,95,204,0.6)" stroke-width="1"/>
+        <line x1="${n.x}" y1="${n.y+16}" x2="${n.x}" y2="${n.y+24}" stroke="rgba(26,95,204,0.6)" stroke-width="1"/>
+        <circle cx="${n.x}" cy="${n.y}" r="3" fill="rgba(26,95,204,0.8)">
+          <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite"/>
+        </circle>
+      </g>`;
+    }
+    html+=`</g>`;
+  });
+
+  svg.innerHTML=html;
+  startMapFlow();
+}
+
+// ── SHIP TRAVEL ANIMATION (crosshair slides along path) ──
+let _shipFrame=null;
+function animShipTravel(fromNode,toNode,onComplete){
+  const canvas=document.getElementById('ship-anim-canvas');
+  if(!canvas){onComplete();return;}
+  const svg=document.getElementById('map-svg');
+  const W=700,H=280;
+  const rect=svg.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=rect.width*dpr; canvas.height=rect.height*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const sw=rect.width,sh=rect.height;
+  const scX=sw/W,scY=sh/H;
+  const dur=600;
+  const t0=performance.now();
+  const trail=[];
+  if(_shipFrame) cancelAnimationFrame(_shipFrame);
+  playWarpSound();
+
+  function frame(now){
+    const t=Math.min((now-t0)/dur,1);
+    const ease=t<0.5?2*t*t:-1+(4-2*t)*t;
+    const x=(fromNode.x+(toNode.x-fromNode.x)*ease)*scX;
+    const y=(fromNode.y+(toNode.y-fromNode.y)*ease)*scY;
+    ctx.clearRect(0,0,sw,sh);
+    trail.push({x,y});
+    if(trail.length>16) trail.shift();
+    // Trail dots
+    trail.forEach((p,i)=>{
+      ctx.globalAlpha=(i/trail.length)*0.4;
+      ctx.fillStyle='rgba(26,95,204,0.8)';
+      ctx.beginPath();ctx.arc(p.x,p.y,(i/trail.length)*3+0.5,0,Math.PI*2);ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    // Crosshair marker
+    ctx.strokeStyle='rgba(26,95,204,0.9)'; ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(x-14,y);ctx.lineTo(x-8,y);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x+8,y);ctx.lineTo(x+14,y);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x,y-14);ctx.lineTo(x,y-8);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x,y+8);ctx.lineTo(x,y+14);ctx.stroke();
+    ctx.fillStyle='rgba(26,95,204,0.9)';
+    ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
+    // Outer ring
+    ctx.strokeStyle='rgba(26,95,204,0.4)'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.stroke();
+    ctx.globalAlpha=1;
+    if(t<1){_shipFrame=requestAnimationFrame(frame);}
+    else{setTimeout(()=>{ctx.clearRect(0,0,sw,sh);onComplete();},80);}
+  }
+  _shipFrame=requestAnimationFrame(frame);
+}
+
+function nodeClicked(id){
+  const node=G.mapNodes.find(n=>n.id===id);
+  if(!node||!node.available||node.visited) return;
+  const fromId=G.currentNode||'s';
+  const fromNode=G.mapNodes.find(n=>n.id===fromId)||G.mapNodes.find(n=>n.type==='start');
+  G.currentNode=id;
+  node.visited=true;
+  G.mapEdges.filter(e=>e.from===id).forEach(e=>{
+    const t=G.mapNodes.find(n=>n.id===e.to);
+    if(t&&!t.visited) t.available=true;
+  });
+  updateNodeAvailability();
+  renderMap();
+  document.getElementById('map-svg').style.pointerEvents='none';
+  if(fromNode){
+    animShipTravel(fromNode,node,()=>{
+      document.getElementById('map-svg').style.pointerEvents='';
+      enterNode(node);
+    });
+  } else {
+    document.getElementById('map-svg').style.pointerEvents='';
+    enterNode(node);
+  }
+}
+
+// ── DAMAGE FLOATS ──
+function spawnDmgNumber(val,el,cls){
+  const rect=el.getBoundingClientRect();
+  const div=document.createElement('div');
+  div.className=`dmg-float ${cls}`;
+  div.textContent=(cls==='heal-num'?'+':'-')+val;
+  div.style.left=(rect.left+rect.width/2-20+(Math.random()*20-10))+'px';
+  div.style.top=(rect.top+rect.height/3)+'px';
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),950);
+}
+
+function flashVignette(){
+  const v=document.getElementById('dmg-vignette');
+  v.classList.remove('flash');
+  void v.offsetWidth;
+  v.classList.add('flash');
+}
+
+// ── HIT FLASH ──
+function hitFlash(elId,isEnemy){
+  const el=document.getElementById(elId);
+  if(!el) return;
+  const overlay=document.createElement('div');
+  const col=isEnemy?'rgba(192,57,43,0.15)':'rgba(26,95,204,0.12)';
+  overlay.style.cssText=`position:absolute;inset:0;border-radius:3px;z-index:10;pointer-events:none;background:${col};animation:hitFlashAnim 0.28s ease-out forwards;`;
+  if(!document.getElementById('hfStyle')){
+    const s=document.createElement('style');
+    s.id='hfStyle';
+    s.textContent='@keyframes hitFlashAnim{0%{opacity:1;}100%{opacity:0;}}';
+    document.head.appendChild(s);
+  }
+  el.style.position='relative';
+  el.appendChild(overlay);
+  setTimeout(()=>overlay.remove(),300);
+}
+
+// ── ENEMY DEATH PARTICLES ──
+function spawnDeathParticles(el){
+  if(!el) return;
+  const rect=el.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div');
+    const a=Math.random()*Math.PI*2;
+    const d=30+Math.random()*70;
+    const sz=2+Math.random()*3;
+    p.style.cssText=`position:fixed;pointer-events:none;z-index:5500;border-radius:50%;
+      width:${sz}px;height:${sz}px;background:rgba(192,57,43,${0.4+Math.random()*0.4});
+      left:${cx}px;top:${cy}px;transition:all ${0.35+Math.random()*0.35}s ease-out;`;
+    document.body.appendChild(p);
+    setTimeout(()=>{p.style.left=(cx+Math.cos(a)*d)+'px';p.style.top=(cy+Math.sin(a)*d)+'px';p.style.opacity='0';},10);
+    setTimeout(()=>p.remove(),800);
+  }
+}
+
+// ── CARD FLY ──
+function animCardFly(card){
+  const el=document.createElement('div');
+  el.className='card-fly';
+  el.textContent=card.name;
+  el.style.cssText=`left:${window.innerWidth*0.35}px;top:${window.innerHeight*0.75}px;`;
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>{
+    el.style.left=(window.innerWidth*0.58)+'px';
+    el.style.top=(window.innerHeight*0.33)+'px';
+    el.style.opacity='0';
+  });
+  setTimeout(()=>el.remove(),450);
+}
+
+// ── DICE ──
+function showDiceRoll(min,max,result,label,callback){
+  const overlay=document.getElementById('dice-overlay');
+  const die=document.getElementById('die1');
+  const resEl=document.getElementById('dice-result-val');
+  const subEl=document.getElementById('dice-sub-label');
+  resEl.classList.remove('show');
+  overlay.classList.add('active');
+  die.classList.add('rolling');
+  subEl.textContent=label;
+  playDiceSound();
+  let ticks=0;
+  const roll=setInterval(()=>{
+    die.textContent=rollDice(min,max);
+    playDiceSound();
+    ticks++;
+    if(ticks>=6){
+      clearInterval(roll);
+      die.classList.remove('rolling');
+      die.textContent=result;
+      resEl.textContent=result;
+      resEl.classList.add('show');
+      setTimeout(()=>{
+        overlay.classList.remove('active');
+        resEl.classList.remove('show');
+        if(callback) callback();
+        updateCombatUI();
+      },600);
+    }
+  },90);
+}
+
+// ── SHIP DRAWING (keep minimal for vitals panel - no canvas ships needed) ──
+function drawPlayerShip(){}
+function drawEnemyShip(){}
+function startIdleFloat(){}
+function stopIdleFloat(){}
+
+// ── MODALS ──
+function openHelp(){document.getElementById('help-modal').classList.add('open');}
+document.getElementById('help-close').addEventListener('click',()=>document.getElementById('help-modal').classList.remove('open'));
+document.getElementById('help-got-it').addEventListener('click',()=>document.getElementById('help-modal').classList.remove('open'));
+document.getElementById('help-modal').addEventListener('click',e=>{if(e.target===document.getElementById('help-modal'))document.getElementById('help-modal').classList.remove('open');});
+document.getElementById('abandon-keep').addEventListener('click',()=>document.getElementById('abandon-modal').classList.remove('open'));
+document.getElementById('abandon-close').addEventListener('click',()=>document.getElementById('abandon-modal').classList.remove('open'));
+document.getElementById('abandon-confirm').addEventListener('click',()=>{document.getElementById('abandon-modal').classList.remove('open');G.runActive=false;showDeathScreen();});
+document.getElementById('abandon-modal').addEventListener('click',e=>{if(e.target===document.getElementById('abandon-modal'))document.getElementById('abandon-modal').classList.remove('open');});
+
+// ── HELPERS ──
+function toggleSidePanel(){document.getElementById('map-side').classList.toggle('mobile-open');}
+function mobileNavTo(btn,sel){const t=document.querySelector(sel);if(t)t.scrollIntoView({behavior:'smooth'});}
+document.getElementById('callsign-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmCallsign();});
+
+const isTouch=window.matchMedia('(hover:none)and(pointer:coarse)').matches;
+const hint=document.getElementById('desktop-hint');
+if(isTouch){
+  setTimeout(()=>hint.classList.add('visible'),1500);
+  setTimeout(()=>hint.classList.remove('visible'),9000);
+  document.addEventListener('touchstart',()=>hint.classList.remove('visible'),{once:true});
+}
+
+// Patch renderCombat to start EKG
+const _origRenderCombat_ref = typeof renderCombat !== 'undefined' ? renderCombat : null;
+
+
+
+// ═══════════════════════════════════════════════════════
+// DARK TRANSIT — Game Engine
+// ═══════════════════════════════════════════════════════
+
+
+// submitScore in visual
+
+
+// ── AUDIO ──
+// getCtx in visual
+
+
+
+// playTone in visual
+
+// playCardSound in visual
+
+// playHitSound in visual
+
+// playShieldSound in visual
+
+// playDeathSound in visual
+
+// playVictorySound in visual
+
+// playDiceSound in visual
+
+// playWarpSound in visual
+
+// playRestSound in visual
+
+// toggleSound in visual
+
+
+// ── STARFIELD ──
+
+
+
+// ── SHIP DRAWING ──
+
+
+
+// ── WARP TRANSITION ──
+
+
+// ── SCREEN MANAGEMENT ──
+currentScreen = 'screen-menu';
+
+
+// ── GAME STATE ──
+let G = {};
+function resetG(){
+  G = {
+    callsign: localStorage.getItem('ward_callsign') || '',
+    sector: 1,
+    deckType: 'striker',
+    hp: 75, maxHp: 75,
+    energy: 3, maxEnergy: 3,
+    scrap: 0,
+    deck: [], hand: [], discard: [],
+    relics: [],
+    kills: 0,
+    cardsPlayed: 0,
+    damageTaken: 0,
+    sectorKills: 0,
+    sectorDamage: 0,
+    sectorCards: 0,
+    totalSectors: 0,
+    mapNodes: [],
+    mapEdges: [],
+    currentNode: null,
+    combatState: null,
+    inCombat: false,
+    runActive: false,
+  };
+}
+resetG();
+
+// ── CARD DATABASE ──
+const CARDS = {
+  // STARTER CARDS (always in starting decks)
+  strike:    {id:'strike',   name:'Strike',     type:'atk', cost:1, effect:{dmg:[4,6]},           desc:'Deal 4–6 damage.',              flavor:'Every war starts with a single shot.'},
+  guard:     {id:'guard',    name:'Guard',       type:'shld',cost:1, effect:{block:6},              desc:'Gain 6 Block.',                 flavor:'Hold the line.'},
+  // STRIKER DECK
+  plasma:    {id:'plasma',   name:'Plasma Bolt', type:'atk', cost:1, effect:{dmg:[5,9]},            desc:'Deal 5–9 damage.',              flavor:'Superheated death, delivered at light speed.'},
+  ionburst:  {id:'ionburst', name:'Ion Burst',   type:'atk', cost:2, effect:{dmg:[10,16]},          desc:'Deal 10–16 damage.',            flavor:'The bigger the charge, the louder the silence after.'},
+  rapidfire: {id:'rapidfire',name:'Rapid Fire',  type:'atk', cost:2, effect:{dmg:[3,5],hits:3},     desc:'Hit 3 times for 3–5 each.',     flavor:'Volume solves most problems.'},
+  overload:  {id:'overload', name:'Overload',    type:'atk', cost:3, effect:{dmg:[20,28]},          desc:'Deal 20–28 damage.',            flavor:'Engines past redline. Worth it.'},
+  // SENTINEL DECK
+  deflector: {id:'deflector',name:'Deflector',   type:'shld',cost:1, effect:{block:10},             desc:'Gain 10 Block.',                flavor:'Let them come.'},
+  fortify:   {id:'fortify',  name:'Fortify',     type:'shld',cost:2, effect:{block:16},             desc:'Gain 16 Block.',                flavor:'The void cannot break what will not bend.'},
+  retaliate: {id:'retaliate',name:'Retaliate',   type:'shld',cost:2, effect:{block:8,dmg:[6,8]},    desc:'Gain 8 Block. Deal 6–8 damage.',flavor:'Defense is just offense with patience.'},
+  bulwark:   {id:'bulwark',  name:'Bulwark',     type:'shld',cost:3, effect:{block:24},             desc:'Gain 24 Block.',                flavor:'An unmovable object, drifting through the dark.'},
+  // GHOST DECK
+  disrupt:   {id:'disrupt',  name:'Disrupt',     type:'hack', cost:1, effect:{status:'disrupt',dmg:[2,4]},desc:'Disrupt enemy (–1 energy). Deal 2–4 dmg.',flavor:'Confusion is the oldest weapon.'},
+  burn:      {id:'burn',     name:'Burn Protocol',type:'hack',cost:1, effect:{status:'burn',stacks:2},   desc:'Apply 2 Burn (deals 2 dmg/turn).',      flavor:'Fire spreads.'},
+  stun:      {id:'stun',     name:'Stun Pulse',  type:'hack', cost:2, effect:{status:'stun',dmg:[3,5]},  desc:'Stun enemy 1 turn. Deal 3–5 dmg.',      flavor:'A moment of silence, involuntarily donated.'},
+  virus:     {id:'virus',    name:'Void Virus',  type:'hack', cost:3, effect:{status:'burn',stacks:5,status2:'disrupt'},desc:'Apply 5 Burn + Disrupt.',flavor:'Once it\'s in, there\'s no removing it.'},
+  // UNIVERSAL UNLOCKABLES
+  boost:     {id:'boost',    name:'Warp Boost',  type:'boost',cost:0, effect:{energy:2},            desc:'Gain 2 Energy this turn.',      flavor:'Push the reactor past its limits.'},
+  scavenge:  {id:'scavenge', name:'Scavenge',    type:'boost',cost:1, effect:{scrap:8,draw:1},      desc:'Gain 8 Scrap. Draw 1 card.',    flavor:'The void provides, if you know where to look.'},
+  medkit:    {id:'medkit',   name:'Emergency Kit',type:'boost',cost:2,effect:{heal:12},             desc:'Heal 12 HP.',                   flavor:'Patch now, philosophize later.'},
+  doubledown:{id:'doubledown',name:'Double Down',type:'atk', cost:2, effect:{dmg:[6,10],nextAtk:1.5},desc:'Deal 6–10 dmg. Next attack ×1.5.',flavor:'Once you\'re in, go all the way.'},
+  chainshot: {id:'chainshot',name:'Chain Shot',  type:'atk', cost:2, effect:{dmg:[4,7],chain:true}, desc:'Deal 4–7 dmg. If it kills, draw 2.',flavor:'Keep the pressure up.'},
+  ironwall:  {id:'ironwall', name:'Iron Wall',   type:'shld',cost:2, effect:{block:12,thorns:4},    desc:'Gain 12 Block + 4 Thorns.',     flavor:'Hurt me once.'},
+  hacknet:   {id:'hacknet',  name:'Hack Net',    type:'hack', cost:2, effect:{status:'disrupt',status2:'burn',stacks:2},desc:'Disrupt + apply 2 Burn.',flavor:'Cast a wide net.'},
+  voidstrike:{id:'voidstrike',name:'Void Strike',type:'atk', cost:3, effect:{dmg:[14,20],penetrate:true},desc:'Deal 14–20 dmg. Ignores Block.',flavor:'Nothing stops the void.'},
+};
+
+const CARD_POOLS = {
+  striker: ['strike','strike','strike','guard','guard','plasma','rapidfire'],
+  sentinel:['strike','strike','guard','guard','guard','deflector','retaliate'],
+  ghost:   ['strike','strike','guard','guard','disrupt','burn','burn'],
+};
+
+const UNLOCK_POOL_BY_TYPE = {
+  striker:  ['plasma','ionburst','rapidfire','overload','boost','doubledown','chainshot','scavenge','voidstrike','medkit'],
+  sentinel: ['deflector','fortify','retaliate','bulwark','ironwall','boost','medkit','scavenge','voidstrike','doubledown'],
+  ghost:    ['disrupt','burn','stun','virus','hacknet','boost','scavenge','medkit','voidstrike','ironwall'],
+};
+
+// ── RELIC DATABASE ──
+const RELICS = {
+  scrapcore:  {id:'scrapcore', name:'Scrap Core',     icon:'◈', desc:'Start each combat with +1 Energy.', effect:{startEnergy:1}},
+  voidshield: {id:'voidshield',name:'Void Shield',    icon:'◉', desc:'Start each combat with 8 Block.',   effect:{startBlock:8}},
+  datacache:  {id:'datacache', name:'Data Cache',     icon:'▦', desc:'Draw 1 extra card each turn.',      effect:{drawBonus:1}},
+  nanobots:   {id:'nanobots',  name:'Nano Bots',      icon:'✦', desc:'Heal 3 HP after each combat.',      effect:{healAfterCombat:3}},
+  burnmodule: {id:'burnmodule',name:'Burn Module',    icon:'🔥',desc:'Burning enemies take +1 dmg/stack.',effect:{burnBonus:1}},
+  predator:   {id:'predator',  name:'Predator Chip',  icon:'▲', desc:'Deal +2 dmg when enemy below 50% HP.',effect:{lowHpBonus:2}},
+  scrapper:   {id:'scrapper',  name:'Scrapper',       icon:'⚙', desc:'Gain 5 Scrap when an enemy dies.',  effect:{killScrap:5}},
+  anchorstone:{id:'anchorstone',name:'Anchor Stone',  icon:'⬟', desc:'Block does not expire between turns.',effect:{persistBlock:true}},
+};
+
+// ── ENEMY DATABASE ──
+const ENEMIES = {
+  // Sector 1
+  drone:     {name:'PROBE DRONE',   hp:22, variant:0, loot:[4,8],  scaling:1.0, intents:['attack','attack','shield','attack']},
+  scout:     {name:'VOID SCOUT',    hp:30, variant:0, loot:[5,10], scaling:1.0, intents:['attack','attack','attack','shield']},
+  raider:    {name:'RAIDER MK-I',   hp:36, variant:0, loot:[6,12], scaling:1.0, intents:['attack','shield','attack','attack']},
+  // Sector 2
+  cruiser:   {name:'DARK CRUISER',  hp:52, variant:1, loot:[8,16], scaling:1.1, intents:['attack','attack','shield','attack','heavy']},
+  hunter:    {name:'VOID HUNTER',   hp:44, variant:1, loot:[7,14], scaling:1.1, intents:['attack','heavy','attack','shield']},
+  phantom:   {name:'PHANTOM SHIP',  hp:48, variant:1, loot:[8,14], scaling:1.1, intents:['attack','attack','disrupt','attack','shield']},
+  // Sector 3
+  warlord:   {name:'WARLORD',       hp:68, variant:2, loot:[12,20],scaling:1.2, intents:['heavy','attack','shield','attack','heavy','disrupt']},
+  sentinel:  {name:'IRON SENTINEL', hp:72, variant:2, loot:[12,22],scaling:1.2, intents:['shield','attack','shield','heavy','attack']},
+  // Elites
+  elite1:    {name:'ELITE INTERCEPTOR',hp:50,variant:0,loot:[18,24],scaling:1.15,intents:['attack','heavy','attack','attack','shield'],elite:true},
+  elite2:    {name:'ELITE DREADNOUGHT',hp:70,variant:2,loot:[20,28],scaling:1.25,intents:['heavy','shield','attack','heavy'],elite:true},
+  // Bosses
+  boss1:     {name:'TARGET: VIPER UNIT',   hp:90, variant:1, loot:[0,0], scaling:1.0, intents:['attack','heavy','attack','disrupt','heavy'], boss:true},
+  boss2:     {name:'TARGET: COLOSSUS',hp:130,variant:2, loot:[0,0], scaling:1.0, intents:['heavy','shield','attack','heavy','disrupt','attack'], boss:true},
+  boss3:     {name:'PRIMARY TARGET: WARDEN',hp:175,variant:2, loot:[0,0], scaling:1.0, intents:['heavy','heavy','disrupt','shield','attack','heavy','attack'], boss:true},
+};
+
+const ENEMY_BY_SECTOR = {
+  1:['drone','scout','raider'], 2:['cruiser','hunter','phantom'], 3:['warlord','sentinel']
+};
+const ELITE_BY_SECTOR = {1:'elite1', 2:'elite1', 3:'elite2'};
+const BOSS_BY_SECTOR  = {1:'boss1',  2:'boss2',  3:'boss3'};
+
+function getScaledEnemy(type){
+  const e = {...ENEMIES[type]};
+  const scale = 1 + (G.sector-1)*0.1;
+  e.hp = Math.round(e.hp * scale);
+  e.maxHp = e.hp;
+  e.currentHp = e.hp;
+  e.block = 0;
+  e.status = {};
+  e.intentIndex = 0;
+  e.type = type;
+  return e;
+}
+
+// ── EVENT DATABASE ──
+const EVENTS = [
+  {
+    title:'Derelict Freighter',
+    body:'Your sensors detect a drifting freighter — hull breached, engines cold. No life signs. Could be salvage. Could be a trap.',
+    choices:[
+      {label:'Board and scavenge',hint:'Gain 15 Scrap. Risk 8 damage.',action:'scavenge_risk'},
+      {label:'Scan from distance',hint:'Gain 5 Scrap safely.',action:'safe_scrap'},
+      {label:'Ignore it',hint:'Nothing gained, nothing lost.',action:'ignore'},
+    ]
+  },
+  {
+    title:'Black Market Contact',
+    body:'A encrypted channel crackles to life. Someone is selling goods — no questions asked, no names exchanged.',
+    choices:[
+      {label:'Buy mystery card (12 Scrap)',hint:'Random card added to deck.',action:'buy_card'},
+      {label:'Buy HP boost (15 Scrap)',hint:'Heal 20 HP.',action:'buy_hp'},
+      {label:'Decline',hint:'You don\'t trust strangers.',action:'ignore'},
+    ]
+  },
+  {
+    title:'Engine Malfunction',
+    body:'Warning lights cascade across your dashboard. Your reactor is running hot. You can vent the heat now — or push through.',
+    choices:[
+      {label:'Emergency vent',hint:'Lose 8 HP. Gain 1 Max Energy permanently.',action:'vent'},
+      {label:'Push through',hint:'No loss. Small chance of explosion (10 dmg).',action:'push'},
+    ]
+  },
+  {
+    title:'Drifting Wreckage',
+    body:'The remains of a vessel hang in the void. Among the debris, your sensors flag something intact — a weapon system or a shield module.',
+    choices:[
+      {label:'Take the weapon upgrade',hint:'Add a random ATK card to deck.',action:'loot_atk'},
+      {label:'Take the shield module',hint:'Add a random SHLD card to deck.',action:'loot_shld'},
+    ]
+  },
+  {
+    title:'Mysterious Distress Signal',
+    body:'A looping transmission. Coordinates only. When you arrive, you find a crate of supplies — and sensors show you were followed.',
+    choices:[
+      {label:'Take supplies and flee',hint:'Gain 12 Scrap. Take 6 dmg from pursuer.',action:'supplies_flee'},
+      {label:'Set an ambush',hint:'Gain 6 Scrap. Heal 5 HP from the fight outcome.',action:'ambush'},
+    ]
+  },
+  {
+    title:'Void Anomaly',
+    body:'A rift in space-time bleeds energy into your hull. The readings are off the charts. Your systems are either enhanced or about to fail.',
+    choices:[
+      {label:'Absorb the energy',hint:'50% chance: +15 Max HP or take 12 damage.',action:'anomaly'},
+      {label:'Divert and shield',hint:'Gain 8 Block for next combat.',action:'anomaly_safe'},
+    ]
+  },
+];
+
+// ── MAP GENERATION ──
+const SECTOR_NAMES = {1:'Outer Drift', 2:'Null Corridor', 3:'The Terminus'};
+const NODE_TYPES = {
+  combat:'combat', elite:'elite', shop:'shop', event:'event', rest:'rest', boss:'boss', start:'start'
+};
+
+function generateMap(sector){
+  // 5 columns: start, 3 choice cols, boss
+  // Column 1: start node
+  // Columns 2-4: branching (2 paths per column)
+  // Column 5: boss
+  const nodes = [];
+  const edges = [];
+  const cols = 5;
+  const W = 700, H = 280;
+  const colX = [60, 185, 340, 495, 640];
+
+  // Start node
+  nodes.push({id:'s', col:0, x:colX[0], y:H/2, type:'start', available:true, visited:true});
+
+  // Columns 1-3: 2 nodes each with random types
+  const colTypes = [
+    shuffleTypes(sector, 1),
+    shuffleTypes(sector, 2),
+    shuffleTypes(sector, 3),
+  ];
+  const ys = [H*0.3, H*0.7];
+
+  for(let c=0;c<3;c++){
+    for(let r=0;r<2;r++){
+      const id=`n${c}${r}`;
+      nodes.push({
+        id, col:c+1,
+        x:colX[c+1], y:ys[r],
+        type:colTypes[c][r],
+        available:false, visited:false,
+        enemy:pickEnemy(colTypes[c][r], sector)
+      });
+    }
+  }
+
+  // Boss node
+  nodes.push({id:'boss', col:4, x:colX[4], y:H/2, type:'boss', available:false, visited:false, enemy:BOSS_BY_SECTOR[sector]});
+
+  // Edges: start -> col1 both; col1 -> col2 (cross connect); col2 -> col3; col3 -> boss
+  const byCol = (c) => nodes.filter(n=>n.col===c);
+  // start -> both col1
+  byCol(1).forEach(n=>edges.push({from:'s',to:n.id}));
+  // col1 -> col2 (each connects to both)
+  byCol(1).forEach(a=>byCol(2).forEach(b=>edges.push({from:a.id,to:b.id})));
+  // col2 -> col3
+  byCol(2).forEach(a=>byCol(3).forEach(b=>edges.push({from:a.id,to:b.id})));
+  // col3 -> boss
+  byCol(3).forEach(n=>edges.push({from:n.id,to:'boss'}));
+
+  // Set col1 as available
+  byCol(1).forEach(n=>n.available=true);
+
+  return {nodes, edges};
+}
+
+function shuffleTypes(sector, col){
+  // Col 1: always has 1 combat, 1 event/rest
+  // Col 2: 1 combat + 1 elite or shop
+  // Col 3: 1 combat + 1 rest/shop
+  const pools = {
+    1: [['combat','event'],['combat','rest']],
+    2: [['combat','elite'],['combat','shop']],
+    3: [['combat','rest'],['combat','shop']],
+  };
+  const opts = pools[col][Math.floor(Math.random()*2)];
+  return Math.random()>0.5 ? opts : [opts[1],opts[0]];
+}
+
+function pickEnemy(type, sector){
+  if(type==='elite') return ELITE_BY_SECTOR[sector];
+  if(type==='boss')  return BOSS_BY_SECTOR[sector];
+  if(type==='combat'){
+    const pool = ENEMY_BY_SECTOR[sector];
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+  return null;
+}
+
+// ── MAP RENDER ──
+// renderMap in visual
+
+
+
+
+_shipFrame = null;
+
+
+// renderMapBackground in visual
+
+
+function updateNodeAvailability(){
+  // After visiting a node, only nodes reachable from ANY visited node are available
+  const visited = G.mapNodes.filter(n=>n.visited).map(n=>n.id);
+  G.mapNodes.forEach(n=>{
+    if(n.visited) return;
+    const reachable = G.mapEdges.some(e=>visited.includes(e.from) && e.to===n.id);
+    n.available = reachable;
+  });
+}
+
+function enterNode(node){
+  playWarpSound();
+  updateHeaderStats();
+  updateSidePanel();
+  switch(node.type){
+    case 'combat': case 'elite': case 'boss':
+      setTimeout(()=>startCombat(node.enemy), 400); break;
+    case 'event':
+      setTimeout(()=>showEventScreen(), 400); break;
+    case 'shop':
+      setTimeout(()=>showShopScreen(), 400); break;
+    case 'rest':
+      setTimeout(()=>showRestScreen(), 400); break;
+  }
+}
+
+// ── DECK MANAGEMENT ──
+function buildStartingDeck(type){
+  G.deckType = type;
+  const ids = CARD_POOLS[type];
+  G.deck = ids.map(id=>({...CARDS[id]}));
+  G.hand = []; G.discard = [];
+}
+
+function shuffleDeck(){
+  for(let i=G.deck.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [G.deck[i],G.deck[j]]=[G.deck[j],G.deck[i]];
+  }
+}
+
+function drawCards(n){
+  const draw = G.relics.some(r=>r.id==='datacache') ? n+1 : n;
+  for(let i=0;i<draw;i++){
+    if(G.deck.length===0){
+      G.deck=[...G.discard]; G.discard=[];
+      shuffleDeck();
+    }
+    if(G.deck.length>0) G.hand.push(G.deck.shift());
+  }
+}
+
+function discardHand(){
+  G.discard.push(...G.hand);
+  G.hand=[];
+}
+
+// ── COMBAT ENGINE ──
+function startCombat(enemyType){
+  const enemyData = getScaledEnemy(enemyType);
+  const startBlock = G.relics.find(r=>r.id==='voidshield') ? 8 : 0;
+  const startEnergy = G.relics.find(r=>r.id==='scrapcore') ? G.maxEnergy+1 : G.maxEnergy;
+
+  G.combatState = {
+    enemy: enemyData,
+    playerBlock: startBlock,
+    enemyBlock: 0,
+    energy: startEnergy,
+    maxEnergy: startEnergy,
+    turn: 1,
+    playerStatus: {},
+    enemyStatus: {},
+    damageThisCombat: 0,
+    cardsThisCombat: 0,
+    nextAtkMult: 1,
+    thorns: 0,
+    isEnding: false,
+  };
+  G.inCombat = true;
+
+  // Seed thorns from ironwall if in deck
+  G.combatState.thorns = 0;
+
+  shuffleDeck();
+  drawCards(4);
+
+  warpTo(()=>{
+    showScreen('screen-combat');
+    renderCombat();
+    pickEnemyIntent();
+  });
+}
+
+function pickEnemyIntent(){
+  const cs = G.combatState;
+  const e = cs.enemy;
+  const intent = e.intents[e.intentIndex % e.intents.length];
+  e.intentIndex++;
+  const sector = G.sector;
+  const scale = 1 + (sector-1)*0.1;
+
+  let icon='⚔', text='', dmg=0, block=0;
+  switch(intent){
+    case 'attack':
+      dmg = Math.round((e.boss ? rollDice(12,18) : rollDice(6,12)) * scale);
+      icon='⚔'; text=`STRIKE — ${dmg} damage`;
+      cs.enemyIntent={type:'attack',dmg};
+      break;
+    case 'heavy':
+      dmg = Math.round((e.boss ? rollDice(18,28) : rollDice(10,18)) * scale);
+      icon='💥'; text=`HEAVY STRIKE — ${dmg} damage`;
+      cs.enemyIntent={type:'attack',dmg};
+      break;
+    case 'shield':
+      block = e.boss ? 18 : 10;
+      icon='🛡'; text=`FORTIFY — gaining ${block} Block`;
+      cs.enemyIntent={type:'shield',block};
+      break;
+    case 'disrupt':
+      dmg = Math.round(rollDice(4,8)*scale);
+      icon='⚡'; text=`DISRUPT — ${dmg} damage + Disrupt`;
+      cs.enemyIntent={type:'disrupt',dmg};
+      break;
+  }
+  document.getElementById('intent-icon').textContent=icon;
+  document.getElementById('intent-text').textContent=text;
+}
+
+function rollDice(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function renderCombat(){
+  const cs = G.combatState;
+  const e = cs.enemy;
+
+  // EKG panels - no ships in WARD
+
+  // Names
+  document.getElementById('player-name-label').textContent = G.callsign || 'PILOT';
+  document.getElementById('enemy-name-label').textContent = e.name;
+
+  updateCombatUI();
+}
+
+function updateCombatUI(){
+  const cs = G.combatState;
+  const e = cs.enemy;
+
+  // Player HP
+  const pPct = Math.max(0,G.hp/G.maxHp*100);
+  document.getElementById('player-hp-fill').style.width = pPct+'%';
+  document.getElementById('player-hp-fill').style.background = pPct>50?'var(--green)':pPct>25?'var(--gold)':'var(--red)';
+  document.getElementById('player-hp-val').textContent = `${G.hp}/${G.maxHp}`;
+
+  // Enemy HP
+  const ePct = Math.max(0,e.currentHp/e.maxHp*100);
+  document.getElementById('enemy-hp-fill').style.width = ePct+'%';
+  document.getElementById('enemy-hp-fill').style.background = ePct>50?'var(--red)':ePct>25?'var(--gold)':'rgba(255,77,109,0.5)';
+  document.getElementById('enemy-hp-val').textContent = `${e.currentHp}/${e.maxHp}`;
+
+  // Block badges
+  const pb = document.getElementById('player-block-badge');
+  pb.textContent = `${cs.playerBlock} Block`;
+  pb.classList.toggle('visible', cs.playerBlock>0);
+
+  const eb = document.getElementById('enemy-block-badge');
+  eb.textContent = `${e.block} Block`;
+  eb.classList.toggle('visible', e.block>0);
+
+  // Status rows
+  renderStatus('player-status', cs.playerStatus);
+  renderStatus('enemy-status', cs.enemyStatus);
+
+  // Energy pips
+  const pipsEl = document.getElementById('energy-pips');
+  pipsEl.innerHTML='';
+  for(let i=0;i<cs.maxEnergy;i++){
+    const p=document.createElement('div');
+    p.className='pip'+(i<cs.energy?'':' empty');
+    pipsEl.appendChild(p);
+  }
+  document.getElementById('energy-label').textContent=`${cs.energy} / ${cs.maxEnergy}`;
+
+  // Hand
+  renderHand();
+
+  // Deck count
+  document.getElementById('deck-count-label').textContent=`Deck: ${G.deck.length} · Discard: ${G.discard.length}`;
+
+  // Relics
+  renderRelicsRow('combat-relics');
+
+  // Header
+  updateHeaderStats();
+}
+
+function renderStatus(elId, statuses){
+  const el = document.getElementById(elId);
+  el.innerHTML='';
+  Object.entries(statuses).forEach(([k,v])=>{
+    if(v<=0) return;
+    const pip=document.createElement('div');
+    pip.className=`status-pip ${k}`;
+    const labels={burn:`🔥${v}`,stun:`⚡Stunned`,disrupt:`⚙Disrupt ${v}`};
+    pip.textContent=labels[k]||`${k}${v}`;
+    el.appendChild(pip);
+  });
+}
+
+function renderHand(){
+  const el = document.getElementById('hand-cards');
+  el.innerHTML='';
+  G.hand.forEach((card,i)=>{
+    const cs = G.combatState;
+    const canAfford = cs.energy >= card.cost;
+    const div=document.createElement('div');
+    div.className=`hand-card ${card.type}${canAfford?'':' disabled'}`;
+    div.innerHTML=`
+      <div class="hc-name ${card.type}">${card.name}</div>
+      <div class="hc-desc">${card.desc}</div>
+      <div class="hc-cost">${card.cost} energy</div>
+      <div class="card-tooltip">
+        <div class="ct-name ${card.type}">${card.name}</div>
+        <div class="ct-desc">${card.desc}</div>
+        <div class="ct-flavor">${card.flavor}</div>
+      </div>
+    `;
+    if(canAfford) div.addEventListener('click',()=>playCard(i));
+    el.appendChild(div);
+  });
+}
+
+function renderRelicsRow(elId){
+  const el=document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML='';
+  G.relics.forEach(r=>{
+    const pip=document.createElement('div');
+    pip.className='relic-pip';
+    pip.innerHTML=`${r.icon} ${r.name}<div class="relic-tooltip">${r.desc}</div>`;
+    el.appendChild(pip);
+  });
+}
+
+// ── CARD PLAY ──
+function playCard(handIndex){
+  const cs = G.combatState;
+  if(cs.isEnding) return;
+  const card = G.hand[handIndex];
+  if(!card || cs.energy < card.cost) return;
+
+  playCardSound();
+  cs.energy -= card.cost;
+  G.hand.splice(handIndex,1);
+  G.discard.push(card);
+  G.cardsPlayed++;
+  cs.cardsThisCombat++;
+  G.sectorCards++;
+
+  animCardFly(card);
+  applyCardEffect(card, cs);
+
+  // Check if enemy is dead
+  if(cs.enemy.currentHp<=0){ endCombat(true); return; }
+
+  updateCombatUI();
+}
+
+
+
+function applyCardEffect(card, cs){
+  const e = cs.enemy;
+  const ef = card.effect;
+
+  // Damage multipliers
+  let atkMult = cs.nextAtkMult || 1;
+  cs.nextAtkMult = 1;
+
+  // Predator relic bonus
+  if(G.relics.some(r=>r.id==='predator') && e.currentHp < e.maxHp/2) atkMult += 2/10;
+
+  if(ef.dmg){
+    let hits = ef.hits || 1;
+    for(let h=0;h<hits;h++){
+      let raw = rollDice(ef.dmg[0],ef.dmg[1]);
+      // Variable dmg = dice roll → show dice
+      if(ef.dmg[1]-ef.dmg[0]>2) showDiceRoll(ef.dmg[0],ef.dmg[1],raw,'Damage Roll',()=>{
+        dealDmgToEnemy(Math.round(raw*atkMult), cs, ef.penetrate);
+      });
+      else dealDmgToEnemy(Math.round(raw*atkMult), cs, ef.penetrate);
+    }
+    if(ef.chain && e.currentHp<=0){ drawCards(2); }
+  }
+  if(ef.block){
+    cs.playerBlock += ef.block;
+    playShieldSound();
+    if(ef.thorns) cs.thorns = (cs.thorns||0) + ef.thorns;
+  }
+  if(ef.heal){
+    G.hp = Math.min(G.maxHp, G.hp+ef.heal);
+    playRestSound();
+    const _hel=document.getElementById('combatant-player'); if(_hel) spawnDmgNumber(ef.heal,_hel,'heal-num');
+  }
+  if(ef.energy) cs.energy = Math.min(cs.maxEnergy, cs.energy+ef.energy);
+  if(ef.scrap) G.scrap += ef.scrap;
+  if(ef.draw) drawCards(ef.draw);
+  if(ef.nextAtk) cs.nextAtkMult = ef.nextAtk;
+  if(ef.status) applyStatus(cs.enemyStatus, ef.status, ef.stacks||1);
+  if(ef.status2) applyStatus(cs.enemyStatus, ef.status2, ef.stacks||1);
+  if(ef.dmg && ef.status) applyStatus(cs.enemyStatus, ef.status, ef.stacks||1);
+}
+
+function dealDmgToEnemy(dmg, cs, penetrate){
+  const e = cs.enemy;
+  if(!penetrate && e.block>0){
+    const absorbed = Math.min(e.block, dmg);
+    e.block -= absorbed;
+    dmg -= absorbed;
+  }
+  e.currentHp -= dmg;
+  if(dmg>0){
+    shakeEl('combatant-enemy');
+    hitFlash('combatant-enemy',true);
+    const _el=document.getElementById('combatant-enemy'); if(_el) spawnDmgNumber(dmg,_el,'enemy-dmg');
+    if(e.currentHp<=0) spawnDeathParticles(_el);
+  }
+  playHitSound();
+}
+
+function applyStatus(statusObj, type, stacks){
+  statusObj[type] = (statusObj[type]||0) + stacks;
+}
+
+function shakeEl(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('shaking');
+  void el.offsetWidth;
+  el.classList.add('shaking');
+  setTimeout(()=>el.classList.remove('shaking'),400);
+}
+
+// ── DICE ROLL OVERLAY ──
+
+
+// ── ENEMY TURN ──
+function endPlayerTurn(){
+  const cs = G.combatState;
+  if(cs.isEnding) return;
+  document.getElementById('btn-end-turn').disabled=true;
+
+  // Discard hand, draw new
+  discardHand();
+
+  // Apply burn to enemy
+  if(cs.enemyStatus.burn>0){
+    const burnDmg = cs.enemyStatus.burn + (G.relics.some(r=>r.id==='burnmodule')?cs.enemyStatus.burn:0);
+    cs.enemy.currentHp -= burnDmg;
+    cs.enemyStatus.burn = Math.max(0, cs.enemyStatus.burn-1);
+    if(cs.enemy.currentHp<=0){ endCombat(true); return; }
+  }
+  // Apply burn to player
+  if(cs.playerStatus.burn>0){
+    const bdmg=cs.playerStatus.burn;
+    G.hp-=bdmg; cs.damageThisCombat+=bdmg; G.damageTaken+=bdmg; G.sectorDamage+=bdmg;
+    cs.playerStatus.burn=Math.max(0,cs.playerStatus.burn-1);
+    if(G.hp<=0){ endCombat(false); return; }
+  }
+  // Tick stun
+  if(cs.enemyStatus.stun>0){ cs.enemyStatus.stun--; }
+
+  // Persist block?
+  if(!G.relics.some(r=>r.id==='anchorstone')) cs.playerBlock=0;
+
+  updateCombatUI();
+
+  // Enemy acts after short delay (unless stunned)
+  setTimeout(()=>{
+    if(cs.enemyStatus.stun>0){
+      // Stunned — skip
+      afterEnemyTurn();
+      return;
+    }
+    enemyAct();
+  }, 600);
+}
+
+function enemyAct(){
+  const cs = G.combatState;
+  const e = cs.enemy;
+  const intent = cs.enemyIntent;
+
+  if(intent.type==='attack'){
+    let dmg = intent.dmg;
+    // Thorns
+    if(cs.thorns>0) e.currentHp-=cs.thorns;
+    // Block absorbs
+    if(cs.playerBlock>0){
+      const absorbed=Math.min(cs.playerBlock,dmg);
+      cs.playerBlock-=absorbed; dmg-=absorbed;
+    }
+    if(dmg>0){
+      G.hp-=dmg; cs.damageThisCombat+=dmg; G.damageTaken+=dmg; G.sectorDamage+=dmg;
+      shakeEl('combatant-player'); hitFlash('combatant-player',false); flashVignette();
+      const _pe=document.getElementById('combatant-player'); if(_pe) spawnDmgNumber(dmg,_pe,'player-dmg');
+      playHitSound();
+    }
+    if(G.hp<=0){ endCombat(false); return; }
+  } else if(intent.type==='shield'){
+    e.block+=intent.block;
+  } else if(intent.type==='disrupt'){
+    let dmg=intent.dmg;
+    if(cs.playerBlock>0){ const abs=Math.min(cs.playerBlock,dmg); cs.playerBlock-=abs; dmg-=abs; }
+    if(dmg>0){ G.hp-=dmg; cs.damageThisCombat+=dmg; G.damageTaken+=dmg; G.sectorDamage+=dmg; hitFlash('combatant-player',false); flashVignette(); const _dpe=document.getElementById('combatant-player'); if(_dpe) spawnDmgNumber(dmg,_dpe,'player-dmg'); }
+    applyStatus(cs.playerStatus,'disrupt',1);
+    if(G.hp<=0){ endCombat(false); return; }
+  }
+
+  // Disrupt effect on player: if disrupted, lose 1 energy next turn
+  if(cs.playerStatus.disrupt>0) cs.playerStatus.disrupt--;
+
+  afterEnemyTurn();
+}
+
+function afterEnemyTurn(){
+  const cs = G.combatState;
+  // Reset enemy block (unless anchorstone doesn't apply to enemy)
+  cs.enemy.block = 0;
+
+  // Reset energy, draw
+  cs.energy = cs.maxEnergy;
+  if(cs.playerStatus.disrupt>0){ cs.energy = Math.max(1, cs.energy-1); }
+
+  drawCards(4);
+  pickEnemyIntent();
+  cs.turn++;
+  updateCombatUI();
+  document.getElementById('btn-end-turn').disabled=false;
+}
+
+// ── COMBAT END ──
+function endCombat(won){
+  if(G.combatState.isEnding) return;
+  G.combatState.isEnding=true;
+  G.inCombat=false;
+
+  if(won){
+    G.kills++;
+    G.sectorKills++;
+    G.totalSectors;
+
+    // Scrap loot
+    const enemy=G.combatState.enemy;
+    if(enemy.loot && enemy.loot[1]>0){
+      const scrapGain=rollDice(enemy.loot[0],enemy.loot[1]);
+      G.scrap+=scrapGain;
+    }
+    // Relic bonus scrap on kill
+    if(G.relics.some(r=>r.id==='scrapper')) G.scrap+=5;
+    // Nanobots heal
+    if(G.relics.some(r=>r.id==='nanobots')){ G.hp=Math.min(G.maxHp,G.hp+3); }
+
+    playVictorySound();
+    discardHand();
+
+    // Check if boss
+    const currentNode = G.mapNodes.find(n=>n.id===G.currentNode);
+    if(currentNode && currentNode.type==='boss'){
+      // Sector complete!
+      setTimeout(()=>showSectorReport(), 800);
+    } else {
+      // Offer card pick
+      setTimeout(()=>showCardPick(), 800);
+    }
+  } else {
+    G.hp=0;
+    playDeathSound();
+    discardHand();
+    setTimeout(()=>showDeathScreen(), 800);
+  }
+
+  updateHeaderStats();
+  updateSidePanel();
+}
+
+// ── CARD PICK ──
+function showCardPick(){
+  const pool = UNLOCK_POOL_BY_TYPE[G.deckType];
+  const shuffled=[...pool].sort(()=>Math.random()-0.5);
+  const picks=shuffled.slice(0,3).map(id=>CARDS[id]);
+
+  const el=document.getElementById('cp-cards');
+  el.innerHTML='';
+  picks.forEach(card=>{
+    const div=document.createElement('div');
+    div.className='cp-card';
+    div.innerHTML=`
+      <div class="cp-card-type">${card.type}</div>
+      <div class="cp-card-name ${card.type}">${card.name}</div>
+      <div class="cp-card-desc">${card.desc}</div>
+      <div class="cp-card-flavor">${card.flavor}</div>
+    `;
+    div.addEventListener('click',()=>{
+      G.deck.push({...card});
+      playCardSound();
+      warpTo(()=>{ showScreen('screen-map'); setTimeout(()=>{renderMap();updateSidePanel();},60); });
+    });
+    el.appendChild(div);
+  });
+
+  showScreen('screen-cardpick');
+}
+
+function skipCardPick(){
+  warpTo(()=>{ showScreen('screen-map'); setTimeout(()=>{renderMap();updateSidePanel();},60); });
+}
+
+// ── EVENT SCREEN ──
+function showEventScreen(){
+  const ev = EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  document.getElementById('ev-title').textContent = ev.title;
+
+  // Typewriter effect on body
+  const bodyEl = document.getElementById('ev-body');
+  bodyEl.textContent='';
+  let i=0;
+  const type=setInterval(()=>{
+    bodyEl.textContent+=ev.body[i++];
+    if(i>=ev.body.length) clearInterval(type);
+  },18);
+
+  const choicesEl = document.getElementById('ev-choices');
+  choicesEl.innerHTML='';
+  ev.choices.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='ev-choice';
+    div.innerHTML=`<div class="ev-choice-label">${c.label}</div><div class="ev-choice-hint">${c.hint}</div>`;
+    div.addEventListener('click',()=>resolveEvent(c.action));
+    choicesEl.appendChild(div);
+  });
+
+  showScreen('screen-event');
+}
+
+function resolveEvent(action){
+  switch(action){
+    case 'scavenge_risk': G.scrap+=15; G.hp=Math.max(1,G.hp-8); break;
+    case 'safe_scrap': G.scrap+=5; break;
+    case 'buy_card':
+      if(G.scrap>=12){ G.scrap-=12; const pool=UNLOCK_POOL_BY_TYPE[G.deckType]; G.deck.push({...CARDS[pool[Math.floor(Math.random()*pool.length)]]}); }
+      break;
+    case 'buy_hp':
+      if(G.scrap>=15){ G.scrap-=15; G.hp=Math.min(G.maxHp,G.hp+20); }
+      break;
+    case 'vent': G.hp=Math.max(1,G.hp-8); G.maxEnergy++; break;
+    case 'push': if(Math.random()<0.1){ G.hp=Math.max(1,G.hp-10); } break;
+    case 'loot_atk': { const atks=['plasma','ionburst','rapidfire','doubledown','voidstrike','chainshot']; G.deck.push({...CARDS[atks[Math.floor(Math.random()*atks.length)]]}); } break;
+    case 'loot_shld': { const shlds=['deflector','fortify','retaliate','bulwark','ironwall']; G.deck.push({...CARDS[shlds[Math.floor(Math.random()*shlds.length)]]}); } break;
+    case 'supplies_flee': G.scrap+=12; G.hp=Math.max(1,G.hp-6); break;
+    case 'ambush': G.scrap+=6; G.hp=Math.min(G.maxHp,G.hp+5); break;
+    case 'anomaly': if(Math.random()<0.5){ G.maxHp+=15; G.hp+=15; } else { G.hp=Math.max(1,G.hp-12); } break;
+    case 'anomaly_safe': if(G.combatState) G.combatState.playerBlock+=8; break;
+    case 'ignore': default: break;
+  }
+  updateHeaderStats();
+  warpTo(()=>{ showScreen('screen-map'); setTimeout(()=>{renderMap();updateSidePanel();},60); });
+}
+
+// ── SHOP SCREEN ──
+function showShopScreen(){
+  document.getElementById('shop-scrap-val').textContent=G.scrap;
+
+  // Generate shop inventory
+  const atkCards=['plasma','ionburst','rapidfire','overload','doubledown','chainshot','voidstrike'];
+  const shldCards=['deflector','fortify','retaliate','bulwark','ironwall'];
+  const hackCards=['disrupt','burn','stun','virus','hacknet'];
+  const utilCards=['boost','scavenge','medkit'];
+
+  const allCardIds=[...atkCards,...shldCards,...hackCards,...utilCards];
+  const pickedCards=allCardIds.sort(()=>Math.random()-0.5).slice(0,4);
+  const pickedRelics=Object.values(RELICS).filter(r=>!G.relics.some(e=>e.id===r.id)).sort(()=>Math.random()-0.5).slice(0,2);
+
+  const cardEl=document.getElementById('shop-card-items');
+  cardEl.innerHTML='';
+  pickedCards.forEach(id=>{
+    const card=CARDS[id];
+    const cost=10+card.cost*4;
+    const div=document.createElement('div');
+    div.className='shop-item';
+    div.innerHTML=`
+      <div class="shop-item-type">Card · ${card.type}</div>
+      <div class="shop-item-name ${card.type||''}">${card.name}</div>
+      <div class="shop-item-desc">${card.desc}</div>
+      <div class="shop-item-cost">◈ ${cost}</div>
+    `;
+    div.addEventListener('click',()=>{
+      if(G.scrap>=cost && !div.classList.contains('sold')){
+        G.scrap-=cost;
+        G.deck.push({...card});
+        div.classList.add('sold');
+        div.innerHTML+='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--dim);background:rgba(7,8,15,0.7);border-radius:8px;">Purchased</div>';
+        document.getElementById('shop-scrap-val').textContent=G.scrap;
+        updateHeaderStats();
+        playCardSound();
+      }
+    });
+    cardEl.appendChild(div);
+  });
+
+  const relicEl=document.getElementById('shop-relic-items');
+  relicEl.innerHTML='';
+  pickedRelics.forEach(relic=>{
+    const cost=24+Math.floor(Math.random()*12);
+    const div=document.createElement('div');
+    div.className='shop-item';
+    div.innerHTML=`
+      <div class="shop-item-type">Relic · Passive</div>
+      <div class="shop-item-name">${relic.icon} ${relic.name}</div>
+      <div class="shop-item-desc">${relic.desc}</div>
+      <div class="shop-item-cost">◈ ${cost}</div>
+    `;
+    div.addEventListener('click',()=>{
+      if(G.scrap>=cost && !div.classList.contains('sold')){
+        G.scrap-=cost;
+        G.relics.push({...relic});
+        div.classList.add('sold');
+        div.innerHTML+='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--dim);background:rgba(7,8,15,0.7);border-radius:8px;">Acquired</div>';
+        document.getElementById('shop-scrap-val').textContent=G.scrap;
+        updateHeaderStats();
+        playShieldSound();
+      }
+    });
+    relicEl.appendChild(div);
+  });
+
+  showScreen('screen-shop');
+}
+
+function leaveShop(){
+  warpTo(()=>{ showScreen('screen-map'); setTimeout(()=>{renderMap();updateSidePanel();},60); });
+}
+
+// ── REST SCREEN ──
+function showRestScreen(){
+  const opts=document.getElementById('rest-options');
+  opts.innerHTML='';
+  const healAmt = Math.round(G.maxHp*0.3);
+
+  const options=[
+    {title:`Repair Hull (+${healAmt} HP)`,desc:'Your engineers patch the hull. Recover '+(healAmt)+' HP.',action:()=>{ G.hp=Math.min(G.maxHp,G.hp+healAmt); playRestSound(); }},
+    {title:'Upgrade a Card',desc:'Enhance one card in your deck. Permanently improve its effect.',action:()=>upgradeACard()},
+    {title:'Study the Void',desc:'Meditate on your run. Draw 1 extra card in your next combat.',action:()=>{ G.deck.push({...CARDS['boost']}); }},
+  ];
+
+  options.forEach(o=>{
+    const div=document.createElement('div');
+    div.className='rest-option';
+    div.innerHTML=`<div class="rest-option-title">${o.title}</div><div class="rest-option-desc">${o.desc}</div>`;
+    div.addEventListener('click',()=>{
+      o.action();
+      updateHeaderStats();
+      warpTo(()=>{ showScreen('screen-map'); setTimeout(()=>{renderMap();updateSidePanel();},60); });
+    });
+    opts.appendChild(div);
+  });
+
+  showScreen('screen-rest');
+}
+
+function upgradeACard(){
+  // Find a random card in deck to upgrade (increase dmg or block)
+  const upgradeable=G.deck.filter(c=>c.effect.dmg||c.effect.block);
+  if(!upgradeable.length) return;
+  const card=upgradeable[Math.floor(Math.random()*upgradeable.length)];
+  if(card.effect.dmg){ card.effect.dmg[0]+=2; card.effect.dmg[1]+=3; }
+  if(card.effect.block){ card.effect.block+=4; }
+  card.name+=' +';
+  playVictorySound();
+}
+
+// ── SECTOR REPORT ──
+function showSectorReport(){
+  document.getElementById('report-sector-label').textContent=`Sector ${G.sector} Cleared`;
+  document.getElementById('rpt-kills').textContent=G.sectorKills;
+  document.getElementById('rpt-dmg').textContent=G.sectorDamage;
+  document.getElementById('rpt-cards').textContent=G.sectorCards;
+  document.getElementById('rpt-hp').textContent=G.hp;
+
+  const efficiency = Math.round((G.sectorKills*20 - G.sectorDamage*0.5 + G.sectorCards*2));
+  const grade = efficiency>80?'S':efficiency>60?'A':efficiency>40?'B':efficiency>20?'C':'D';
+  document.getElementById('rpt-efficiency').textContent=`${grade} — ${efficiency} pts`;
+
+  showScreen('screen-report');
+}
+
+function advanceSector(){
+  G.sector++;
+  G.totalSectors++;
+
+  // Reset sector stats
+  G.sectorKills=0; G.sectorDamage=0; G.sectorCards=0;
+
+  if(G.sector>3){
+    // Victory!
+    showVictoryScreen();
+    return;
+  }
+
+  // Generate new map
+  const {nodes,edges}=generateMap(G.sector);
+  G.mapNodes=nodes; G.mapEdges=edges;
+  G.currentNode=null;
+
+  document.getElementById('map-sector-label').textContent=`Sector ${G.sector} of 3`;
+  document.getElementById('map-sector-name').textContent=SECTOR_NAMES[G.sector]||'The Terminus';
+  document.getElementById('side-sector').textContent=`${G.sector}/3`;
+  document.getElementById('hdr-sector').textContent=G.sector;
+
+  warpTo(()=>{ showScreen('screen-map'); setTimeout(()=>{renderMap();updateSidePanel();},60); });
+}
+
+// ── DEATH SCREEN ──
+function showDeathScreen(){
+  G.runActive=false;
+  const score=calcScore();
+  const isNew=checkPB(score);
+
+  document.getElementById('death-score').textContent=score.toLocaleString();
+  document.getElementById('death-cause').textContent=`Neutralized in Sector ${G.sector}`;
+  document.getElementById('death-sector').textContent=G.sector;
+  document.getElementById('death-kills').textContent=G.kills;
+  document.getElementById('death-cards').textContent=G.cardsPlayed;
+  document.getElementById('death-pb-badge').style.display=isNew?'inline-flex':'none';
+
+  saveRunHistory(score, false);
+  submitScore(G.callsign||'PILOT','WARD',score);
+
+  showScreen('screen-death');
+  setTimeout(drawDeathEkg,100);
+}
+
+// ── VICTORY SCREEN ──
+function showVictoryScreen(){
+  G.runActive=false;
+  const score=calcScore();
+  const isNew=checkPB(score);
+
+  document.getElementById('victory-score').textContent=score.toLocaleString();
+  document.getElementById('vic-sectors').textContent=G.totalSectors;
+  document.getElementById('vic-kills').textContent=G.kills;
+  document.getElementById('vic-cards').textContent=G.cardsPlayed;
+  document.getElementById('victory-pb-badge').style.display=isNew?'inline-flex':'none';
+
+  saveRunHistory(score,true);
+  submitScore(G.callsign||'PILOT','WARD',score);
+  playVictorySound();
+
+  showScreen('screen-victory');
+}
+
+function calcScore(){
+  const hpMult = 1 + (G.hp/G.maxHp)*0.5;
+  return Math.round(G.totalSectors * 1000 + G.kills * 150 + G.cardsPlayed * 10) * hpMult | 0;
+}
+
+function checkPB(score){
+  const key='ward_pb';
+  const prev=parseInt(localStorage.getItem(key)||'0');
+  if(score>prev){ localStorage.setItem(key,score); return true; }
+  return false;
+}
+
+function saveRunHistory(score, won){
+  const history=JSON.parse(localStorage.getItem('ward_history')||'[]');
+  history.unshift({
+    callsign:G.callsign||'PILOT',
+    score,won,
+    sector:G.sector,
+    kills:G.kills,
+    deck:G.deckType,
+    date:new Date().toLocaleDateString()
+  });
+  localStorage.setItem('ward_history',JSON.stringify(history.slice(0,5)));
+}
+
+// ── UI HELPERS ──
+function updateHeaderStats(){
+  document.getElementById('hdr-sector').textContent=G.sector;
+  document.getElementById('hdr-hp').textContent=`${G.hp}/${G.maxHp}`;
+  document.getElementById('hdr-hp-fill').style.width=Math.max(0,G.hp/G.maxHp*100)+'%';
+  document.getElementById('hdr-scrap').textContent=G.scrap;
+}
+
+function updateSidePanel(){
+  document.getElementById('side-sector').textContent=`${G.sector}/3`;
+  document.getElementById('side-kills').textContent=G.kills;
+  document.getElementById('side-scrap').textContent=G.scrap+'◈';
+  document.getElementById('side-hp').textContent=`${G.hp}/${G.maxHp}`;
+
+  // Deck list
+  const deckEl=document.getElementById('side-deck-list');
+  const counts={};
+  [...G.deck,...G.hand,...G.discard].forEach(c=>{ counts[c.name]=(counts[c.name]||{count:0,type:c.type}); counts[c.name].count++; });
+  deckEl.innerHTML=Object.entries(counts).map(([name,{count,type}])=>
+    `<div class="side-deck-chip ${type}">${name}<span>×${count}</span></div>`
+  ).join('');
+
+  // Relics
+  const relEl=document.getElementById('side-relics-list');
+  relEl.textContent=G.relics.length?G.relics.map(r=>r.icon+' '+r.name).join(', '):'None active';
+
+  renderRelicsRow('map-relics');
+}
+
+function updateMapUI(){
+  document.getElementById('map-sector-label').textContent=`Sector ${G.sector} of 3`;
+  document.getElementById('map-sector-name').textContent=SECTOR_NAMES[G.sector]||'';
+  document.getElementById('side-sector').textContent=`${G.sector}/3`;
+}
+
+// ── LOADOUT SCREEN ──
+const DECK_DEFS=[
+  {id:'striker', name:'Striker', icon:'⚡', desc:'High offense, variable damage. Dice rolls determine outcomes — high risk, high reward.', atk:5,shld:2,hack:1},
+  {id:'sentinel',name:'Sentinel',icon:'🛡', desc:'Heavy shields and counter-damage. Outlast enemies through sheer defensive bulk.',atk:2,shld:5,hack:1},
+  {id:'ghost',   name:'Ghost',   icon:'◈', desc:'Hack and debuff focused. Disrupt enemy plans, stack Burn, control the battlefield.',atk:2,shld:2,hack:4},
+];
+
+function renderLoadout(){
+  const el=document.getElementById('lo-decks');
+  el.innerHTML='';
+  DECK_DEFS.forEach(d=>{
+    const div=document.createElement('div');
+    div.className='deck-card';
+    div.setAttribute('data-num',String(DECK_DEFS.indexOf(d)+1).padStart(2,'0'));
+    div.innerHTML=`
+      <div class="deck-icon">${d.icon}</div>
+      <div class="deck-name">${d.name}</div>
+      <div class="deck-desc">${d.desc}</div>
+      <div class="deck-stats">
+        ${renderStatBar('Attack',d.atk,6,'#ff8a9d')}
+        ${renderStatBar('Defense',d.shld,6,'#06ffa5')}
+        ${renderStatBar('Hack',d.hack,5,'#ffd166')}
+      </div>
+    `;
+    div.addEventListener('click',()=>{
+      document.querySelectorAll('.deck-card').forEach(c=>c.classList.remove('selected'));
+      div.classList.add('selected');
+      G.deckType=d.id;
+      const btn=document.getElementById('lo-confirm');
+      btn.textContent='Begin Transit →';
+      btn.style.opacity='1'; btn.style.pointerEvents='auto';
+    });
+    el.appendChild(div);
+  });
+}
+
+function renderStatBar(label,val,max,color){
+  const pct=Math.round(val/max*100);
+  return `<div class="deck-stat"><span class="deck-stat-label">${label}</span><div class="deck-stat-bar"><div class="deck-stat-fill" style="width:${pct}%;background:${color};"></div></div></div>`;
+}
+
+function confirmLoadout(){
+  buildStartingDeck(G.deckType);
+  startRun();
+}
+
+// ── RUN FLOW ──
+function startNewRun(){
+  resetG();
+  G.callsign=localStorage.getItem('ward_callsign')||'';
+
+  if(!G.callsign){
+    showScreen('screen-callsign');
+  } else {
+    renderLoadout();
+    showScreen('screen-loadout');
+  }
+}
+
+function confirmCallsign(){
+  const val=document.getElementById('callsign-input').value.trim().toUpperCase();
+  if(!val) return;
+  G.callsign=val;
+  localStorage.setItem('ward_callsign',val);
+  renderLoadout();
+  showScreen('screen-loadout');
+}
+
+function startRun(){
+  G.runActive=true;
+  G.sector=1;
+  G.hp=75; G.maxHp=75;
+  G.scrap=20;
+  G.kills=0; G.cardsPlayed=0; G.damageTaken=0;
+  G.sectorKills=0; G.sectorDamage=0; G.sectorCards=0;
+  G.totalSectors=0;
+  G.relics=[];
+  G.combatState=null;
+
+  const {nodes,edges}=generateMap(1);
+  G.mapNodes=nodes; G.mapEdges=edges;
+  G.currentNode=null;
+
+  updateMapUI();
+  updateHeaderStats();
+  updateSidePanel();
+
+  // Track active game in Supabase
+  try {
+    fetch(`${SUPABASE_URL}/rest/v1/meta?key=eq.active_game`,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({value:'WARD'})});
+  } catch(e){}
+
+  warpTo(()=>{ showScreen('screen-map'); setTimeout(renderMap,50); });
+}
+
+// ── ABANDON FLOW ──
+function tryAbandon(){
+  if(!G.runActive){ showScreen('screen-menu'); loadHistory(); return; }
+  document.getElementById('abandon-modal').classList.add('open');
+}
+
+
+
+
+
+
+// ── HELP MODAL ──
+
+
+
+
+
+// ── MOBILE SIDE PANEL ──
+
+
+// ── RUN HISTORY ──
+function loadHistory(){
+  const history=JSON.parse(localStorage.getItem('ward_history')||'[]');
+  const el=document.getElementById('history-list');
+  if(!history.length){ el.innerHTML='<div class="mh-empty">No runs yet. Begin your first transit.</div>'; return; }
+  el.innerHTML=history.map(r=>`
+    <div class="mh-row">
+      <div>
+        <div class="mh-callsign">${r.callsign}</div>
+        <div class="mh-detail">${r.deck} · Sector ${r.sector} · ${r.kills} kills</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="mh-score">${r.score.toLocaleString()}</div>
+        <div class="${r.won?'':'mh-death'}">${r.won?'Victory':'KIA'} · ${r.date}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── DESKTOP HINT ──
+
+// ── CALLSIGN INPUT ENTER ──
+
+
+
+// ── INIT ──
+loadHistory();
+showScreen('screen-menu');
+const savedCS=localStorage.getItem('ward_callsign');
+if(savedCS) document.getElementById('callsign-input').value=savedCS;
+
+</script>
+</body>
+</html>
